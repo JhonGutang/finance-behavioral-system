@@ -10,6 +10,7 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     oniguruma-dev \
+    icu-dev \
     curl \
     git \
     unzip \
@@ -28,6 +29,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     pcntl \
     bcmath \
     gd \
+    intl \
     opcache
 
 # Install Composer
@@ -59,6 +61,7 @@ RUN apk add --no-cache \
     libjpeg-turbo \
     freetype \
     oniguruma \
+    icu-libs \
     nginx \
     supervisor
 
