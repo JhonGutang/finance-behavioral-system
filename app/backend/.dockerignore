@@ -1,0 +1,61 @@
+# Dependencies (will be installed during build)
+node_modules/
+vendor/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Development files
+.git/
+.gitignore
+.gitattributes
+.editorconfig
+.phpunit.result.cache
+phpunit.xml
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing
+tests/
+.phpunit.cache
+
+# Storage and cache (created at runtime)
+storage/app/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+!storage/app/.gitignore
+!storage/framework/.gitignore
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore
+!storage/logs/.gitignore
+
+# Bootstrap cache
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+
+# Documentation
+README.md
+RENDER_DEPLOYMENT.md
+*.md
+
+# Build artifacts
+public/hot
+public/storage
+public/build
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Laravel Sail
+docker-compose.yml
