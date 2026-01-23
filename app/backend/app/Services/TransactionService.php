@@ -73,7 +73,7 @@ class TransactionService
      */
     public function updateTransaction(int $id, array $data): bool
     {
-        $this->validateTransaction($data);
+        $this->validateTransaction($data, true);
 
         return $this->transactionRepository->update($id, $data);
     }
@@ -107,13 +107,15 @@ class TransactionService
      *
      * @throws ValidationException
      */
-    private function validateTransaction(array $data): void
+    private function validateTransaction(array $data, bool $isUpdate = false): void
     {
+        $requiredRule = $isUpdate ? 'sometimes|required' : 'required';
+        
         $rules = [
-            'type' => 'required|in:income,expense',
-            'amount' => 'required|numeric|min:0.01|max:9999999.99',
-            'date' => 'required|date|before_or_equal:today',
-            'category_id' => 'required|exists:categories,id',
+            'type' => $requiredRule . '|in:income,expense',
+            'amount' => $requiredRule . '|numeric|min:0.01|max:9999999.99',
+            'date' => $requiredRule . '|date|before_or_equal:today',
+            'category_id' => $requiredRule . '|exists:categories,id',
             'description' => 'nullable|string|max:1000',
         ];
 

@@ -1,0 +1,82 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, prod ]
+  pull_request:
+    branches: [ main, prod ]
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: Backend (Laravel/Pest)
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: app/backend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+      
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: app/backend/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+      
+      - name: Prepare Laravel environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      
+      - name: Run Laravel Pint (Code Style)
+        run: ./vendor/bin/pint --test
+        continue-on-error: true
+      
+      - name: Run Pest tests
+        run: php artisan test
+
+  frontend:
+    name: Frontend (Vue/Vitest)
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: app/web
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/web/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run TypeScript type checking
+        run: npx vue-tsc --noEmit
+      
+      - name: Run Vitest tests
+        run: npm run test
+      
+      - name: Build production bundle
+        run: npm run build
