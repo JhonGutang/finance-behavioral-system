@@ -78,7 +78,7 @@ describe('useAnalytics composables', () => {
     it('uses custom days parameter', async () => {
       vi.mocked(transactionApi.getDailyAnalytics).mockResolvedValue(mockDailyData);
 
-      const wrapper = mount(
+      mount(
         {
           setup() {
             const days = ref(7);
@@ -173,7 +173,7 @@ describe('useAnalytics composables', () => {
     it('uses custom months parameter', async () => {
       vi.mocked(transactionApi.getMonthlyAnalytics).mockResolvedValue(mockMonthlyData);
 
-      const wrapper = mount(
+      mount(
         {
           setup() {
             const months = ref(6);
