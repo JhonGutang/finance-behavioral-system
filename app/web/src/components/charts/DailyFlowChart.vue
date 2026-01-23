@@ -7,7 +7,7 @@ const { data, isPending } = useDailyAnalytics();
 
 const isEmpty = computed(() => {
   if (!data.value) return true;
-  const hasData = data.value.income.some(v => v > 0) || data.value.expenses.some(v => v > 0);
+  const hasData = data.value.income.some((v: number) => v > 0) || data.value.expenses.some((v: number) => v > 0);
   return !hasData;
 });
 

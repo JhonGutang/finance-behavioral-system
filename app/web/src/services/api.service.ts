@@ -7,6 +7,7 @@ import type {
   ApiResponse,
   TransactionFormData,
   CategoryFormData,
+  AnalyticsData,
 } from '../types';
 
 const apiClient: AxiosInstance = axios.create({
@@ -85,6 +86,29 @@ export const transactionApi = {
   getSummary: async (): Promise<{ summary: Summary; expenses_by_category: ExpenseByCategory[] }> => {
     const response = await apiClient.get<ApiResponse<{ summary: Summary; expenses_by_category: ExpenseByCategory[] }>>('/transactions/summary');
     if (!response.data.data) throw new Error('Failed to fetch summary');
+    return response.data.data;
+  },
+
+  // Analytics endpoints
+  getDailyAnalytics: async (days: number = 30): Promise<AnalyticsData> => {
+    const response = await apiClient.get<ApiResponse<AnalyticsData>>('/transactions/analytics/daily', {
+      params: { days },
+    });
+    if (!response.data.data) throw new Error('Failed to fetch daily analytics');
+    return response.data.data;
+  },
+
+  getMonthlyAnalytics: async (months: number = 12): Promise<AnalyticsData> => {
+    const response = await apiClient.get<ApiResponse<AnalyticsData>>('/transactions/analytics/monthly', {
+      params: { months },
+    });
+    if (!response.data.data) throw new Error('Failed to fetch monthly analytics');
+    return response.data.data;
+  },
+
+  getYearlyAnalytics: async (): Promise<AnalyticsData> => {
+    const response = await apiClient.get<ApiResponse<AnalyticsData>>('/transactions/analytics/yearly');
+    if (!response.data.data) throw new Error('Failed to fetch yearly analytics');
     return response.data.data;
   },
 };
