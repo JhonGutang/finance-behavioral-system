@@ -84,9 +84,12 @@ class CategoryService
      */
     private function validateCategory(array $data, ?int $id = null): void
     {
+        $nameRule = $id ? 'sometimes|required' : 'required';
+        $typeRule = $id ? 'sometimes|required' : 'required';
+        
         $rules = [
-            'name' => 'required|string|max:100|unique:categories,name' . ($id ? ",$id" : ''),
-            'type' => 'required|in:income,expense',
+            'name' => $nameRule . '|string|max:100|unique:categories,name' . ($id ? ",$id" : ''),
+            'type' => $typeRule . '|in:income,expense',
             'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
             'icon' => 'nullable|string|max:50',
             'is_default' => 'nullable|boolean',

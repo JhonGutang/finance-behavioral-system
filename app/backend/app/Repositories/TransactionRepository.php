@@ -33,7 +33,8 @@ class TransactionRepository
     public function getByDateRange(string $startDate, string $endDate): Collection
     {
         return Transaction::with('category')
-            ->whereBetween('date', [$startDate, $endDate])
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
             ->orderBy('date', 'desc')
             ->get();
     }
