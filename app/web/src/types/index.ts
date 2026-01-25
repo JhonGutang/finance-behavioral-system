@@ -98,3 +98,19 @@ export interface AuthResponse {
   access_token: string;
   token_type: string;
 }
+
+export interface RuleTrigger {
+  rule_id: string;
+  triggered: boolean;
+  data: Record<string, any>;
+}
+
+export interface RuleEvaluation {
+  user_id: number;
+  evaluation_date: string;
+  weeks: {
+    current: { start: string; end: string };
+    previous: { start: string; end: string };
+  };
+  triggered_rules: RuleTrigger[];
+}

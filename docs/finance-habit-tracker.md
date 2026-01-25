@@ -244,6 +244,7 @@ function selectFeedbackLevel(userProgress: UserProgress): FeedbackLevel {
 #### User Progress Record
 ```typescript
 interface UserProgress {
+  id: string;
   user_id: string;
   week_start: Date;
   week_end: Date;
@@ -264,7 +265,7 @@ interface FeedbackMessage {
   level: 'basic' | 'advanced';
   explanation: string;                 // Filled template
   suggestion: string;                  // Filled template
-  data: Record<string, any>;          // Raw data used
+  user_id: string;
   displayed: boolean;
   user_acknowledged: boolean;
 }

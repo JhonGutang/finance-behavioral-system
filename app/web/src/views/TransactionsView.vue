@@ -2,8 +2,9 @@
 import { ref, onMounted, computed } from 'vue';
 import { useTransactionStore } from '../stores/transactionStore';
 import { useCategoryStore } from '../stores/categoryStore';
-import { Plus, Pencil, Trash2 } from 'lucide-vue-next';
+import { Plus, Pencil, Trash2, Sparkles } from 'lucide-vue-next';
 import type { Transaction, TransactionFormData } from '../types';
+import RuleEvaluationModal from '@/components/RuleEvaluationModal.vue';
 import { formatDateSafe } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -45,6 +46,8 @@ const formData = ref<TransactionFormData>({
   category_id: '',
   description: undefined,
 });
+
+const ruleEvaluationModal = ref<InstanceType<typeof RuleEvaluationModal> | null>(null);
 
 const filteredCategories = computed(() => {
   return formData.value.type === 'income' 
@@ -120,6 +123,10 @@ async function handleDelete(id: number) {
   }
 }
 
+function openRuleEvaluation() {
+  ruleEvaluationModal.value?.open();
+}
+
 /**
  * Formats a date string to "MMM D, YYYY" format
  * Handles both YYYY-MM-DD and M/D/YYYY formats from backend
@@ -150,10 +157,16 @@ onMounted(async () => {
         <h1 class="text-3xl font-bold text-slate-900">Transactions</h1>
         <p class="text-slate-600 mt-1">Manage your income and expenses</p>
       </div>
-      <Button @click="openCreateModal" class="gap-2">
-        <Plus class="w-5 h-5" />
-        Add Transaction
-      </Button>
+      <div class="flex items-center gap-3">
+        <Button variant="outline" @click="openRuleEvaluation" class="gap-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800">
+          <Sparkles class="w-4 h-4" />
+          Evaluate
+        </Button>
+        <Button @click="openCreateModal" class="gap-2">
+          <Plus class="w-5 h-5" />
+          Add Transaction
+        </Button>
+      </div>
     </div>
 
     <!-- Transactions List -->
@@ -349,5 +362,8 @@ onMounted(async () => {
         </form>
       </DialogContent>
     </Dialog>
+
+    <!-- Rule Evaluation Modal -->
+    <RuleEvaluationModal ref="ruleEvaluationModal" />
   </div>
 </template>

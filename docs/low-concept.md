@@ -21,7 +21,8 @@ The goal is to demonstrate **system design, rule-based logic, and adaptive behav
 - Pattern detection using simple deterministic rules
 - A feedback engine that generates explanations and suggestions
 - Adaptive feedback that changes based on user progress
-- A basic dashboard or CLI output for viewing results
+- A basic dashboard for viewing results
+- Multi-user support with secure authentication (Sanctum)
 
 ### Not Included (Out of Scope)
 - Bank integrations
@@ -128,8 +129,7 @@ The project includes:
 Possible next steps:
 
 - Add more rules and patterns
-- Add a UI dashboard with charts
-- Support multiple users and accounts
+- Support for bank integrations
 - Add simulation and replay features
 
 ---

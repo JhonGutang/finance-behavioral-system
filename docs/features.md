@@ -2,6 +2,27 @@
 
 This document provides a comprehensive list of currently implemented features in the Finance Behavioral System.
 
+## 🔐 User Authentication
+The system provides a secure authentication layer using Laravel Sanctum to manage user access and data privacy.
+
+- **Account Management**:
+    - **Registration**: Users can create new accounts.
+    - **Login/Logout**: Secure session management.
+- **Protected Access**: All financial data routes are protected by authentication middleware.
+- **Profile Management**: Endpoint to retrieve the currently authenticated user's information.
+
+## ⚙️ Rule Engine (Behavioral Logic)
+The core of the system's pattern detection capabilities, providing deterministic feedback based on spending habits.
+
+- **Deterministic Rules**: Implementation of 3 core heuristic rules:
+    - **Category Overspend**: Detects >25% WoW increase in specific categories.
+    - **Weekly Spending Spike**: Detects >20% WoW increase in total spending.
+    - **Frequent Small Purchases**: Detects "death by a thousand cuts" (10+ transactions < $10).
+- **Explainable Logic**: Every trigger includes supporting data (e.g., specific percentages and transaction counts).
+- **Edge Case Handling**: Built-in safety for new users with no baseline data.
+- **API Evaluation**: Authenticated endpoint to trigger pattern detection on demand.
+- **Demo Mode**: Includes a `RuleEngineSeeder` with a pre-configured demo account (`demo@example.com`) showing real-world triggers.
+
 ## 📊 Dashboard
 The Dashboard serves as the central hub for financial overview and quick insights.
 
@@ -12,8 +33,6 @@ The Dashboard serves as the central hub for financial overview and quick insight
 - **Data Visualization**:
     - **Income vs Expense Bar Chart**: A visual comparison of cash flow.
     - **Expense Breakdown Pie Chart**: Distributed view of spending across categories.
-- **Quick Actions**: Easy access to create new transactions.
-
 ## 💸 Transaction Management
 Core functionality for tracking and managing financial events.
 
@@ -24,7 +43,9 @@ Core functionality for tracking and managing financial events.
     - Amount
     - Type (Income/Expense)
 - **Manual Entry**: Form to add new transactions with validation.
+- **User Isolation**: Users can only view, create, update, or delete their own transactions.
 - **Categorization**: Transactions are associated with system or custom categories.
+- **Custom Categories**: Users can create their own categories tailored to their spending habits.
 - **Responsive Layout**: Optimized for both desktop and mobile viewing.
 
 ## 🧭 UI / UX

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\RuleEngineController;
 
 // Health check routes
 Route::get('/health', [HealthController::class, 'health']);
@@ -30,4 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Transaction routes
     Route::get('/transactions/summary', [TransactionController::class, 'summary']);
     Route::apiResource('transactions', TransactionController::class);
+
+    // Rule Engine routes
+    Route::get('/rules/evaluate', [RuleEngineController::class, 'evaluate']);
 });

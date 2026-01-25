@@ -8,6 +8,7 @@ import type {
   TransactionFormData,
   CategoryFormData,
   AnalyticsData,
+  RuleEvaluation,
 } from '../types';
 
 // Category API
@@ -115,5 +116,15 @@ export const apiService = {
   getMessage: async (): Promise<MessageResponse> => {
     const response = await apiClient.get<MessageResponse>('/message');
     return response.data;
+  },
+};
+
+// Rule Engine API
+export const ruleEngineApi = {
+  evaluate: async (date?: string): Promise<RuleEvaluation> => {
+    const params = date ? { date } : {};
+    const response = await apiClient.get<ApiResponse<RuleEvaluation>>('/rules/evaluate', { params });
+    if (!response.data.data) throw new Error('Failed to evaluate rules');
+    return response.data.data;
   },
 };

@@ -2,7 +2,8 @@
 
 > **Document Type:** Technical Specification  
 > **Phase:** MVP - Adaptive Feedback Engine  
-> **Last Updated:** 2026-01-20
+> **Status:** Implemented  
+> **Last Updated:** 2026-01-25
 
 ---
 
@@ -230,8 +231,8 @@ interface Transaction {
   type: 'income' | 'expense';
   amount: number;
   date: Date;
-  category_id: string;
   category_name: string;
+  user_id: string;
   description?: string;
 }
 ```
@@ -239,6 +240,7 @@ interface Transaction {
 #### Weekly Summary
 ```typescript
 interface WeeklySummary {
+  user_id: string;
   week_start: Date;
   week_end: Date;
   total_income: number;
@@ -254,8 +256,10 @@ interface WeeklySummary {
 interface RuleResult {
   rule_id: string;
   triggered: boolean;
+  user_id: string;
   timestamp: Date;
   data: Record<string, any>;
+  displayed: boolean;
 }
 ```
 
@@ -264,7 +268,6 @@ interface RuleResult {
 #### Category Overspend Check
 ```typescript
 function checkCategoryOverspend(
-  currentWeek: WeeklySummary,
   previousWeek: WeeklySummary,
   threshold: number = 0.25
 ): RuleResult {

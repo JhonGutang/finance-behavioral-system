@@ -191,6 +191,19 @@ Net Balance = Total Income - Total Expenses
 
 ### Database Schema
 
+#### `users` Table
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | BIGINT UNSIGNED | PRIMARY KEY, AUTO_INCREMENT | Unique identifier |
+| `name` | VARCHAR(255) | NOT NULL | User's full name |
+| `email` | VARCHAR(255) | NOT NULL, UNIQUE | User's email address |
+| `password` | VARCHAR(255) | NOT NULL | Hashed password |
+| `created_at` | TIMESTAMP | NOT NULL | Record creation time |
+| `updated_at` | TIMESTAMP | NOT NULL | Record update time |
+
+---
+
 #### `categories` Table
 
 | Column | Type | Constraints | Description |
@@ -201,11 +214,13 @@ Net Balance = Total Income - Total Expenses
 | `color` | VARCHAR(7) | NULLABLE | Hex color code (e.g., #FF5733) |
 | `icon` | VARCHAR(50) | NULLABLE | Icon identifier |
 | `is_default` | BOOLEAN | DEFAULT FALSE | System-provided category |
+| `user_id` | BIGINT UNSIGNED | NULLABLE, FOREIGN KEY | Owner of the category (NULL for default) |
 | `created_at` | TIMESTAMP | NOT NULL | Record creation time |
 | `updated_at` | TIMESTAMP | NOT NULL | Record update time |
 
 **Indexes:**
 - PRIMARY KEY on `id`
+- FOREIGN KEY on `user_id` REFERENCES `users(id)` ON DELETE CASCADE
 - INDEX on `type`
 
 **Sample Data:**
@@ -228,15 +243,18 @@ INSERT INTO categories (name, type, is_default) VALUES
 | `date` | DATE | NOT NULL | Transaction date |
 | `category_id` | BIGINT UNSIGNED | NOT NULL, FOREIGN KEY | Reference to categories |
 | `description` | TEXT | NULLABLE | Optional notes |
+| `user_id` | BIGINT UNSIGNED | NOT NULL, FOREIGN KEY | Owner of the transaction |
 | `created_at` | TIMESTAMP | NOT NULL | Record creation time |
 | `updated_at` | TIMESTAMP | NOT NULL | Record update time |
 
 **Indexes:**
 - PRIMARY KEY on `id`
 - FOREIGN KEY on `category_id` REFERENCES `categories(id)` ON DELETE RESTRICT
+- FOREIGN KEY on `user_id` REFERENCES `users(id)` ON DELETE CASCADE
 - INDEX on `date`
 - INDEX on `type`
 - INDEX on `category_id`
+- INDEX on `user_id`
 
 **Sample Data:**
 ```sql
@@ -251,13 +269,17 @@ INSERT INTO transactions (type, amount, date, category_id, description) VALUES
 ### Entity Relationships
 
 ```
+users (1) ──────────< (many) categories
+users (1) ──────────< (many) transactions
 categories (1) ──────< (many) transactions
 ```
 
 **Relationship Rules:**
-- One category can have many transactions
-- Each transaction belongs to exactly one category
-- Categories cannot be deleted if they have associated transactions (ON DELETE RESTRICT)
+- A user can own multiple custom categories and many transactions.
+- One category can have many transactions.
+- Each transaction belongs to exactly one category and one user.
+- Categories cannot be deleted if they have associated transactions (ON DELETE RESTRICT).
+- When a user is deleted, all their categories and transactions are also deleted (ON DELETE CASCADE).
 
 ---
 
@@ -265,11 +287,16 @@ categories (1) ──────< (many) transactions
 
 ### Architecture Decisions
 
-#### Backend: Clean Architecture
+#### Backend: Clean Architecture & Authentication
 
-**Rationale:** Separation of concerns makes the codebase maintainable and testable.
+**Rationale:** Separation of concerns combined with secure, token-based authentication (Laravel Sanctum) ensures data integrity and privacy.
 
 **Layers:**
+
+0. **Authentication Middleware (Sanctum)**
+   - Intercepts requests to protected routes.
+   - Validates the presence and validity of the authentication token.
+   - Attaches the authenticated user to the request.
 
 1. **Controller Layer**
    - Handles HTTP requests/responses
@@ -366,7 +393,21 @@ Backend
 
 ### API Endpoints
 
-#### Transactions
+#### Authentication (Public)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/register` | Register a new user |
+| POST | `/api/login` | Log in and receive token |
+
+#### Authentication (Protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/logout` | Revoke current token |
+| GET | `/api/me` | Get authenticated user info |
+
+#### Transactions (Protected)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -377,7 +418,7 @@ Backend
 | DELETE | `/api/transactions/{id}` | Delete transaction |
 | GET | `/api/transactions/summary` | Get summary (totals, balance) |
 
-#### Categories
+#### Categories (Protected)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|

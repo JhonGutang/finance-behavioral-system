@@ -135,4 +135,38 @@ class TransactionRepository
             ->orderBy('total', 'desc')
             ->get();
     }
+
+    /**
+     * Get weekly aggregation data for rule evaluation.
+     */
+    public function getWeeklySummary(int $userId, string $startDate, string $endDate): array
+    {
+        $baseQuery = Transaction::where('transactions.user_id', $userId)
+            ->whereBetween('transactions.date', [$startDate, $endDate])
+            ->where('transactions.type', 'expense');
+
+        $totalExpenses = (clone $baseQuery)->sum('transactions.amount');
+        $transactionCount = (clone $baseQuery)->count();
+        $smallTransactionCount = (clone $baseQuery)->where('transactions.amount', '<', 10)->count();
+        
+        $categoryTotals = (clone $baseQuery)
+            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->select('categories.name as category_name', DB::raw('SUM(transactions.amount) as total'))
+            ->groupBy('categories.name')
+            ->get()
+            ->pluck('total', 'category_name')
+            ->map(fn($total) => (float) $total)
+            ->toArray();
+
+        // Also get total amount for small transactions as needed for Rule 3 metadata
+        $smallTransactionTotal = (clone $baseQuery)->where('transactions.amount', '<', 10)->sum('transactions.amount');
+
+        return [
+            'total_expenses' => (float) $totalExpenses,
+            'transaction_count' => $transactionCount,
+            'small_transaction_count' => $smallTransactionCount,
+            'small_transaction_total' => (float) $smallTransactionTotal,
+            'category_totals' => $categoryTotals,
+        ];
+    }
 }
