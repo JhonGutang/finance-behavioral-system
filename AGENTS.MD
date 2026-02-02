@@ -1,4 +1,4 @@
-# Finance Behavioral System
+# Spendlytic: Finance Behavioral System
 
 > **Current Phase:** MVP - Adaptive Feedback Engine  
 > **Status:** Initial Development

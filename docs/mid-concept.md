@@ -1,4 +1,4 @@
-# Finance Tracker with Adaptive Feedback Loop (Engineering Project)
+# Spendlytic: Finance Tracker with Adaptive Feedback Loop (Engineering Project)
 
 ## Project Motivation
 

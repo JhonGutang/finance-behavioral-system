@@ -1,4 +1,4 @@
-# Finance Tracker with Adaptive Feedback Engine (MVP)
+# Spendlytic: Finance Tracker with Adaptive Feedback Engine (MVP)
 
 ## 🚀 Project Overview
 

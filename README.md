@@ -1,4 +1,4 @@
-# Finance Behavioral System
+# Spendlytic: Finance Behavioral System
 
 An engineering-focused finance tracker with adaptive feedback engine.
 
