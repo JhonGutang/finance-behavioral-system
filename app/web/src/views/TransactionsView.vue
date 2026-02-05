@@ -10,6 +10,8 @@ import { useFeedbackStore } from '@/stores/feedbackStore';
 import { formatDateSafe } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import CsvUploadModal from '@/components/transactions/CsvUploadModal.vue';
+import { Upload } from 'lucide-vue-next';
 import {
   Dialog,
   DialogContent,
@@ -57,6 +59,7 @@ const formData = ref<TransactionFormData>({
 });
 
 const ruleEvaluationModal = ref<InstanceType<typeof RuleEvaluationModal> | null>(null);
+const showImportModal = ref(false);
 
 const filteredCategories = computed(() => {
   return formData.value.type === 'income' 
@@ -203,6 +206,10 @@ onMounted(async () => {
           <Sparkles v-if="needsReevaluation" class="w-4 h-4" />
           <BrainCircuit v-else class="w-4 h-4" />
           {{ !feedbackStore.hasEvaluatedThisWeek ? 'Evaluate' : (needsReevaluation ? 'Re-evaluate' : 'View Insights') }}
+        </Button>
+        <Button variant="outline" @click="showImportModal = true" class="gap-2">
+          <Upload class="w-4 h-4" />
+          Import CSV
         </Button>
         <Button @click="openCreateModal" class="gap-2">
           <Plus class="w-5 h-5" />
@@ -407,5 +414,11 @@ onMounted(async () => {
 
     <!-- Rule Evaluation Modal -->
     <RuleEvaluationModal ref="ruleEvaluationModal" />
+
+    <!-- CSV Import Modal -->
+    <CsvUploadModal 
+      v-model:open="showImportModal" 
+      @success="transactionStore.fetchTransactions" 
+    />
   </div>
 </template>

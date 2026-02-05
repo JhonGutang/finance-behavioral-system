@@ -53,6 +53,10 @@ Planned features (**NOT** for current implementation):
 - Comments only for complex logic
 - Proper formatting, spacing, indentation
 
+**Import Style (PHP):**
+- Avoid inline namespace imports (e.g., `private \App\Services\Service $service`)
+- ALWAYS use `use` statements at the top of the file for all classes and types
+
 **Constants & Config:**
 - Magic numbers → Named constants (UPPER_CASE)
 - Configuration in `config/` folder

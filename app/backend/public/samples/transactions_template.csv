@@ -1,0 +1,6 @@
+date,category,description,amount,type
+2024-02-05,Food,Lunch at cafe,15.50,expense
+2024-02-05,Salary,Monthly Pay,3000.00,income
+2024-02-06,Groceries,Weekly shop,85.20,expense
+2024-02-07,Freelance,Project Bonus,500.00,income
+2024-02-08,Rent,Monthly Apartment Rent,1200.00,expense

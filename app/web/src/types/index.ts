@@ -149,3 +149,19 @@ export interface EvaluationResponse {
   evaluation: RuleEvaluation;
   feedback: FeedbackHistory[];
 }
+
+export interface CsvImportItem {
+  id: number;
+  data: {
+    date: string;
+    category_id: number;
+    category_name: string;
+    description: string;
+    amount: number;
+    type: TransactionType;
+  };
+  is_duplicate: boolean;
+  status: 'valid' | 'error';
+  message?: string;
+  skip?: boolean;
+}

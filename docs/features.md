@@ -43,6 +43,10 @@ Core functionality for tracking and managing financial events.
     - Amount
     - Type (Income/Expense)
 - **Manual Entry**: Form to add new transactions with validation.
+- **CSV Import**: Bulk-import transactions using a fixed template.
+    - **Draft Review**: Preview parsed data before saving.
+    - **Duplicate Detection**: Auto-flags and skips existing transactions.
+    - **Auto-Categorization**: Learns and matches categories to reduce manual work.
 - **User Isolation**: Users can only view, create, update, or delete their own transactions.
 - **Categorization**: Transactions are associated with system or custom categories.
 - **Custom Categories**: Users can create their own categories tailored to their spending habits.

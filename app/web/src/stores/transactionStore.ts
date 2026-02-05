@@ -7,7 +7,8 @@ import {
   useUpdateTransaction,
   useDeleteTransaction,
 } from '../composables/useTransactions';
-import type { TransactionFormData } from '../types';
+import type { TransactionFormData, CsvImportItem, Transaction } from '../types';
+import { transactionApi } from '../services/api.service';
 
 /**
  * Transaction Store
@@ -75,8 +76,8 @@ export const useTransactionStore = defineStore('transaction', () => {
   async function createTransaction(data: TransactionFormData) {
     return new Promise((resolve, reject) => {
       createMutation.mutate(data, {
-        onSuccess: (newTransaction) => resolve(newTransaction),
-        onError: (error) => reject(error),
+        onSuccess: (newTransaction: Transaction) => resolve(newTransaction),
+        onError: (error: any) => reject(error),
       });
     });
   }
@@ -89,8 +90,8 @@ export const useTransactionStore = defineStore('transaction', () => {
       updateMutation.mutate(
         { id, data },
         {
-          onSuccess: (updated) => resolve(updated),
-          onError: (error) => reject(error),
+          onSuccess: (updated: Transaction) => resolve(updated),
+          onError: (error: any) => reject(error),
         }
       );
     });
@@ -108,6 +109,23 @@ export const useTransactionStore = defineStore('transaction', () => {
     });
   }
 
+  /**
+   * Preview CSV import
+   */
+  async function importPreview(file: File): Promise<CsvImportItem[]> {
+    return await transactionApi.importPreview(file);
+  }
+
+  /**
+   * Confirm CSV import
+   */
+  async function importConfirm(items: { data: any; skip?: boolean }[]) {
+    const result = await transactionApi.importConfirm(items);
+    await fetchTransactions();
+    await fetchSummary();
+    return result;
+  }
+
   return {
     transactions,
     summary,
@@ -119,6 +137,8 @@ export const useTransactionStore = defineStore('transaction', () => {
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    importPreview,
+    importConfirm,
   };
 });
 

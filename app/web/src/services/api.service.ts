@@ -9,6 +9,7 @@ import type {
   CategoryFormData,
   AnalyticsData,
   EvaluationResponse,
+  CsvImportItem,
 } from '../types';
 
 // Category API
@@ -102,6 +103,21 @@ export const transactionApi = {
   getYearlyAnalytics: async (): Promise<AnalyticsData> => {
     const response = await apiClient.get<ApiResponse<AnalyticsData>>('/transactions/analytics/yearly');
     if (!response.data.data) throw new Error('Failed to fetch yearly analytics');
+    return response.data.data;
+  },
+
+  importPreview: async (file: File): Promise<CsvImportItem[]> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post<ApiResponse<CsvImportItem[]>>('/transactions/import-preview', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data || [];
+  },
+
+  importConfirm: async (items: { data: any; skip?: boolean }[]): Promise<{ imported: number; skipped: number }> => {
+    const response = await apiClient.post<ApiResponse<{ imported: number; skipped: number }>>('/transactions/import-confirm', { items });
+    if (!response.data.data) throw new Error('Failed to confirm import');
     return response.data.data;
   },
 };

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\TransactionService;
 use App\Services\AnalyticsService;
+use App\Services\CsvImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -13,7 +14,8 @@ class TransactionController extends Controller
 {
     public function __construct(
         private TransactionService $transactionService,
-        private AnalyticsService $analyticsService
+        private AnalyticsService $analyticsService,
+        private CsvImportService $csvImportService
     ) {}
 
     /**
@@ -192,6 +194,43 @@ class TransactionController extends Controller
         return response()->json([
             'success' => true,
             'data' => $data,
+        ]);
+    }
+
+    /**
+     * Preview CSV import data.
+     */
+    public function importPreview(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        $preview = $this->csvImportService->getPreview($request->file('file'), $request->user()->id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $preview,
+        ]);
+    }
+
+    /**
+     * Confirm CSV import.
+     */
+    public function importConfirm(Request $request): JsonResponse
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.skip' => 'boolean',
+            'items.*.data' => 'required|array',
+        ]);
+
+        $result = $this->csvImportService->confirmImport($request->input('items'), $request->user()->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Imported {$result['imported']} transactions, skipped {$result['skipped']}.",
+            'data' => $result,
         ]);
     }
 }

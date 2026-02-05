@@ -30,6 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Transaction routes
     Route::get('/transactions/summary', [TransactionController::class, 'summary']);
+    Route::post('/transactions/import-preview', [TransactionController::class, 'importPreview']);
+    Route::post('/transactions/import-confirm', [TransactionController::class, 'importConfirm']);
     Route::apiResource('transactions', TransactionController::class);
 
     // Rule Engine routes
