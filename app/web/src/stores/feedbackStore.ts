@@ -101,6 +101,9 @@ export const useFeedbackStore = defineStore('feedback', () => {
     });
   }
 
+  const isFeedbackFetched = computed(() => !!historyQuery.data.value);
+  const isProgressFetched = computed(() => !!progressQuery.data.value);
+
   return {
     feedbackHistory,
     progressHistory,
@@ -113,6 +116,8 @@ export const useFeedbackStore = defineStore('feedback', () => {
     currentWeekMonday,
     hasEvaluatedThisWeek,
     canEvaluate,
+    isFeedbackFetched,
+    isProgressFetched,
     fetchFeedback,
     fetchMoreFeedback,
     fetchProgress,

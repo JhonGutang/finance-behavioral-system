@@ -96,21 +96,21 @@ const handleLogout = async () => {
     <div class="h-16 flex items-center px-4 border-b border-slate-200 gap-3">
       <button
         @click="emit('toggle-collapse')"
-        class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-100 transition-colors"
+        class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg hover:bg-emerald-50 transition-colors"
         aria-label="Toggle sidebar"
       >
-        <Menu class="w-5 h-5 text-slate-600" />
+        <Menu class="w-5 h-5 text-emerald-800" />
       </button>
       
       <transition name="fade">
-        <h1 v-if="!isCollapsed" class="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent truncate">
-          Finance Tracker
+        <h1 v-if="!isCollapsed" class="text-xl font-serif font-bold bg-gradient-to-r from-emerald-900 to-emerald-700 bg-clip-text text-transparent truncate tracking-tight">
+          Spendlytic
         </h1>
       </transition>
     </div>
 
     <!-- Navigation Links -->
-    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar font-inter">
       <RouterLink
         v-for="item in navItems"
         :key="item.to"
@@ -119,8 +119,8 @@ const handleLogout = async () => {
         :class="[
           'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group',
           isActive(item)
-            ? 'bg-primary/10 text-primary font-medium'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+            ? 'bg-emerald-50 text-emerald-900 font-semibold'
+            : 'text-emerald-950/60 hover:bg-emerald-50/50 hover:text-emerald-900',
           isCollapsed ? 'justify-center' : '',
         ]"
       >
@@ -128,11 +128,11 @@ const handleLogout = async () => {
           :is="item.icon"
           :class="[
             'w-5 h-5 flex-shrink-0',
-            isActive(item) ? 'text-primary' : 'text-slate-500 group-hover:text-slate-700',
+            isActive(item) ? 'text-emerald-900' : 'text-emerald-800/40 group-hover:text-emerald-800',
           ]"
         />
         <transition name="fade">
-          <span v-if="!isCollapsed" class="text-sm whitespace-nowrap">
+          <span v-if="!isCollapsed" class="text-sm whitespace-nowrap tracking-tight">
             {{ item.label }}
           </span>
         </transition>

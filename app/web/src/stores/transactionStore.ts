@@ -165,6 +165,9 @@ export const useTransactionStore = defineStore('transaction', () => {
     return result;
   }
 
+  const isSummaryFetched = computed(() => !!summaryQuery.data.value);
+  const isTransactionsFetched = computed(() => !!transactionsQuery.data.value);
+
   return {
     transactions,
     summary,
@@ -173,6 +176,8 @@ export const useTransactionStore = defineStore('transaction', () => {
     error,
     paginationMeta,
     queryParams,
+    isSummaryFetched,
+    isTransactionsFetched,
     fetchTransactions,
     goToPage,
     fetchSummary,

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { UserPlus, Loader2, Mail, Lock, User, Layers } from 'lucide-vue-next';
+import { Loader2, Mail, Lock, User, Layers } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const name = ref('');
