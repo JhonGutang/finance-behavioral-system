@@ -132,9 +132,9 @@ describe('BaseChart', () => {
     const chartData = (wrapper.vm as any).chartData;
 
     // Income should be green
-    expect(chartData.datasets[0].borderColor).toBe('rgb(34, 197, 94)');
+    expect(chartData.datasets[0].borderColor).toBe('rgb(4, 120, 87)');
     // Expenses should be red
-    expect(chartData.datasets[1].borderColor).toBe('rgb(239, 68, 68)');
+    expect(chartData.datasets[1].borderColor).toBe('rgb(190, 18, 60)');
   });
 
   it('returns empty datasets when data is null', () => {

@@ -3,7 +3,7 @@
 > **Document Type:** Technical Specification  
 > **Phase:** MVP - Adaptive Feedback Engine  
 > **Status:** Implemented  
-> **Last Updated:** 2026-01-25
+> **Last Updated:** 2026-02-07
 
 ---
 
@@ -56,8 +56,8 @@ Current Week Category Spending > Previous Week Category Spending × 1.25
 
 **Example:**
 ```
-Previous Week: Food & Dining = $200
-Current Week: Food & Dining = $260
+Previous Week: Food & Dining = ₱200
+Current Week: Food & Dining = ₱260
 Increase: 30% (triggers rule because 30% > 25%)
 ```
 
@@ -98,8 +98,8 @@ Current Week Total Spending > Previous Week Total Spending × 1.20
 
 **Example:**
 ```
-Previous Week Total: $500
-Current Week Total: $650
+Previous Week Total: ₱500
+Current Week Total: ₱650
 Increase: 30% (triggers rule because 30% > 20%)
 ```
 
@@ -127,11 +127,11 @@ Increase: 30% (triggers rule because 30% > 20%)
 
 **Trigger Condition:**
 ```
-Count of transactions with amount < $10 in current week >= 10
+Count of transactions with amount < ₱10 in current week >= 10
 ```
 
 **Parameters:**
-- **Amount Threshold:** $10.00
+- **Amount Threshold:** ₱10.00
 - **Count Threshold:** 10 transactions
 - **Time Window:** 7 days (1 week)
 - **Scope:** All expense transactions
@@ -139,16 +139,16 @@ Count of transactions with amount < $10 in current week >= 10
 **Example:**
 ```
 Current Week Small Transactions:
-- Coffee: $4.50
-- Snack: $3.00
-- Coffee: $4.50
-- ... (7 more transactions under $10)
+- Coffee: ₱4.50
+- Snack: ₱3.00
+- Coffee: ₱4.50
+- ... (7 more transactions under ₱10)
 Total Count: 10+ (triggers rule)
 ```
 
 **Data Required:**
 - All expense transactions for current week
-- Filter by amount < $10.00
+- Filter by amount < ₱10.00
 - Count of matching transactions
 
 **Output:**
@@ -210,8 +210,8 @@ In the current implementation, rules are evaluated:
 - **User Feedback:** "Building your baseline..."
 
 #### Zero Spending in Category
-- **Previous Week:** $0
-- **Current Week:** Any amount > $0
+- **Previous Week:** ₱0
+- **Current Week:** Any amount > ₱0
 - **Behavior:** Rule does not trigger
 - **Rationale:** Avoid false positives for new spending categories
 
@@ -222,139 +222,24 @@ In the current implementation, rules are evaluated:
 
 ---
 
-## Implementation Details
+## 🔄 Adaptive Feedback Logic (MVP Refinement)
 
-### Data Structures
+The system now implements two levels of feedback that adapt based on user behavior over time.
 
-#### Transaction Event
-```typescript
-interface Transaction {
-  id: string;
-  type: 'income' | 'expense';
-  amount: number;
-  date: Date;
-  category_name: string;
-  user_id: string;
-  description?: string;
-}
-```
+### Feedback Levels
 
-#### Weekly Summary
-```typescript
-interface WeeklySummary {
-  user_id: string;
-  week_start: Date;
-  week_end: Date;
-  total_income: number;
-  total_expenses: number;
-  category_totals: Map<string, number>;
-  transaction_count: number;
-  small_transaction_count: number;
-}
-```
+1.  **Basic Level**: Targeted at users who are struggling with a specific rule (triggered 2+ weeks in a row) or new users. Focuses on simple, direct actions.
+2.  **Advanced Level**: Targeted at users who have shown improvement (rule NOT triggered for 2+ weeks in a row). Focuses on historical context and optimization.
 
-#### Rule Result
-```typescript
-interface RuleResult {
-  rule_id: string;
-  triggered: boolean;
-  user_id: string;
-  timestamp: Date;
-  data: Record<string, any>;
-  displayed: boolean;
-}
-```
+### Advanced Metric Enrichment
 
-### Calculation Functions
+To support advanced feedback, the `FeedbackEngineService` now calculates additional metrics on-the-fly:
 
-#### Category Overspend Check
-```typescript
-function checkCategoryOverspend(
-  previousWeek: WeeklySummary,
-  threshold: number = 0.25
-): RuleResult {
-  const results: RuleResult[] = [];
-  
-  for (const [category, currentAmount] of currentWeek.category_totals) {
-    const previousAmount = previousWeek.category_totals.get(category) || 0;
-    
-    // Skip if no previous spending in this category
-    if (previousAmount === 0) continue;
-    
-    const increasePercentage = (currentAmount - previousAmount) / previousAmount;
-    
-    if (increasePercentage > threshold) {
-      results.push({
-        rule_id: 'category_overspend',
-        triggered: true,
-        timestamp: new Date(),
-        data: {
-          category,
-          current_week_amount: currentAmount,
-          previous_week_amount: previousAmount,
-          increase_percentage: increasePercentage * 100,
-          threshold: threshold * 100
-        }
-      });
-    }
-  }
-  
-  return results;
-}
-```
-
-#### Weekly Spending Spike Check
-```typescript
-function checkWeeklySpendingSpike(
-  currentWeek: WeeklySummary,
-  previousWeek: WeeklySummary,
-  threshold: number = 0.20
-): RuleResult {
-  const currentTotal = currentWeek.total_expenses;
-  const previousTotal = previousWeek.total_expenses;
-  
-  // Skip if no previous spending
-  if (previousTotal === 0) {
-    return { rule_id: 'weekly_spending_spike', triggered: false, timestamp: new Date(), data: {} };
-  }
-  
-  const increasePercentage = (currentTotal - previousTotal) / previousTotal;
-  
-  return {
-    rule_id: 'weekly_spending_spike',
-    triggered: increasePercentage > threshold,
-    timestamp: new Date(),
-    data: {
-      current_week_total: currentTotal,
-      previous_week_total: previousTotal,
-      increase_percentage: increasePercentage * 100,
-      threshold: threshold * 100
-    }
-  };
-}
-```
-
-#### Frequent Small Purchases Check
-```typescript
-function checkFrequentSmallPurchases(
-  currentWeek: WeeklySummary,
-  amountThreshold: number = 10.00,
-  countThreshold: number = 10
-): RuleResult {
-  const smallTransactionCount = currentWeek.small_transaction_count;
-  
-  return {
-    rule_id: 'frequent_small_purchases',
-    triggered: smallTransactionCount >= countThreshold,
-    timestamp: new Date(),
-    data: {
-      transaction_count: smallTransactionCount,
-      amount_threshold: amountThreshold,
-      count_threshold: countThreshold
-    }
-  };
-}
-```
+| Metric | Rule | Calculation |
+| :--- | :--- | :--- |
+| **4-Week Average** | Category Overspend | Average spending in that category over the last 4 successful/failed weeks. |
+| **Baseline 4-Week average** | Weekly Spike | Average total weekly spending over the last month. |
+| **Average Small Purchase** | Frequent Small Purchases | Sum of small purchases / count of small purchases. |
 
 ---
 
@@ -413,6 +298,51 @@ Create realistic test datasets:
 - **Spike Week:** Significant increases
 - **Small Purchases Week:** Many small transactions
 - **Mixed Week:** Multiple rules trigger
+
+---
+
+## Implementation Details
+
+### Data Structures
+
+#### Transaction Event
+```typescript
+interface Transaction {
+  id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  date: Date;
+  category_name: string;
+  user_id: string;
+  description?: string;
+}
+```
+
+#### Weekly Summary
+```typescript
+interface WeeklySummary {
+  user_id: string;
+  week_start: Date;
+  week_end: Date;
+  total_income: number;
+  total_expenses: number;
+  category_totals: Map<string, number>;
+  transaction_count: number;
+  small_transaction_count: number;
+}
+```
+
+#### Rule Result
+```typescript
+interface RuleResult {
+  rule_id: string;
+  triggered: boolean;
+  user_id: string;
+  timestamp: Date;
+  data: Record<string, any>;
+  displayed: boolean;
+}
+```
 
 ---
 
@@ -486,5 +416,5 @@ if (categoryOverspend.triggered && frequentSmallPurchases.triggered) {
 
 ### References
 
-- See [`low-concept.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/low-concept.md) for MVP overview
-- See [`finance-habit-tracker.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/finance-habit-tracker.md) for feedback generation
+- See [`low-concept.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/low-concept.md) for MVP overview
+- See [`finance-habit-tracker.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/finance-habit-tracker.md) for feedback generation

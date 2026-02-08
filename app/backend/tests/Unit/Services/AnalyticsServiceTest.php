@@ -3,19 +3,19 @@
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Services\AnalyticsService;
 use App\Repositories\TransactionRepository;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Services\AnalyticsService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->repository = new TransactionRepository();
+    $this->repository = new TransactionRepository;
     $this->service = new AnalyticsService($this->repository);
-    
+
     $this->user = User::factory()->create();
-    
+
     // Create test categories
     $this->incomeCategory = Category::create(['name' => 'Salary', 'type' => 'income', 'user_id' => $this->user->id]);
     $this->expenseCategory = Category::create(['name' => 'Food', 'type' => 'expense', 'user_id' => $this->user->id]);
@@ -24,7 +24,7 @@ beforeEach(function () {
 describe('getDailyFlow', function () {
     test('returns empty arrays when no transactions exist', function () {
         $result = $this->service->getDailyFlow(7, $this->user->id);
-        
+
         expect($result)->toHaveKeys(['labels', 'income', 'expenses'])
             ->and($result['labels'])->toHaveCount(7)
             ->and($result['income'])->toHaveCount(7)
@@ -42,7 +42,7 @@ describe('getDailyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'expense',
             'amount' => 150,
@@ -50,7 +50,7 @@ describe('getDailyFlow', function () {
             'category_id' => $this->expenseCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'expense',
             'amount' => 50,
@@ -58,9 +58,9 @@ describe('getDailyFlow', function () {
             'category_id' => $this->expenseCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getDailyFlow(7, $this->user->id);
-        
+
         expect($result['labels'])->toHaveCount(7)
             ->and($result['income'])->toContain(1000.0)
             ->and($result['expenses'])->toContain(150.0)
@@ -76,7 +76,7 @@ describe('getDailyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'income',
             'amount' => 300,
@@ -84,16 +84,16 @@ describe('getDailyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getDailyFlow(7, $this->user->id);
-        
+
         // Should sum to 800
         expect($result['income'])->toContain(800.0);
     });
 
     test('respects custom days parameter', function () {
         $result = $this->service->getDailyFlow(14, $this->user->id);
-        
+
         expect($result['labels'])->toHaveCount(14)
             ->and($result['income'])->toHaveCount(14)
             ->and($result['expenses'])->toHaveCount(14);
@@ -101,7 +101,7 @@ describe('getDailyFlow', function () {
 
     test('formats date labels correctly', function () {
         $result = $this->service->getDailyFlow(3, $this->user->id);
-        
+
         // Labels should be in "M j" format (e.g., "Jan 23")
         foreach ($result['labels'] as $label) {
             expect($label)->toMatch('/^[A-Z][a-z]{2} \d{1,2}$/');
@@ -112,7 +112,7 @@ describe('getDailyFlow', function () {
 describe('getMonthlyFlow', function () {
     test('returns empty arrays when no transactions exist', function () {
         $result = $this->service->getMonthlyFlow(6, $this->user->id);
-        
+
         expect($result)->toHaveKeys(['labels', 'income', 'expenses'])
             ->and($result['labels'])->toHaveCount(6)
             ->and($result['income'])->toHaveCount(6)
@@ -130,7 +130,7 @@ describe('getMonthlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'expense',
             'amount' => 2000,
@@ -138,7 +138,7 @@ describe('getMonthlyFlow', function () {
             'category_id' => $this->expenseCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'income',
             'amount' => 4500,
@@ -146,9 +146,9 @@ describe('getMonthlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getMonthlyFlow(12, $this->user->id);
-        
+
         expect($result['labels'])->toHaveCount(12)
             ->and($result['income'])->toContain(5000.0)
             ->and($result['income'])->toContain(4500.0)
@@ -163,7 +163,7 @@ describe('getMonthlyFlow', function () {
             'category_id' => $this->expenseCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'expense',
             'amount' => 200,
@@ -171,16 +171,16 @@ describe('getMonthlyFlow', function () {
             'category_id' => $this->expenseCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getMonthlyFlow(12, $this->user->id);
-        
+
         // Should sum to 300
         expect($result['expenses'])->toContain(300.0);
     });
 
     test('respects custom months parameter', function () {
         $result = $this->service->getMonthlyFlow(6, $this->user->id);
-        
+
         expect($result['labels'])->toHaveCount(6)
             ->and($result['income'])->toHaveCount(6)
             ->and($result['expenses'])->toHaveCount(6);
@@ -188,7 +188,7 @@ describe('getMonthlyFlow', function () {
 
     test('formats month labels correctly', function () {
         $result = $this->service->getMonthlyFlow(3, $this->user->id);
-        
+
         // Labels should be in "M Y" format (e.g., "Jan 2026")
         foreach ($result['labels'] as $label) {
             expect($label)->toMatch('/^[A-Z][a-z]{2} \d{4}$/');
@@ -199,7 +199,7 @@ describe('getMonthlyFlow', function () {
 describe('getYearlyFlow', function () {
     test('returns empty arrays when no transactions exist', function () {
         $result = $this->service->getYearlyFlow($this->user->id);
-        
+
         expect($result)->toHaveKeys(['labels', 'income', 'expenses'])
             ->and($result['labels'])->toBeArray()
             ->and($result['income'])->toBeArray()
@@ -216,7 +216,7 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'expense',
             'amount' => 30000,
@@ -224,7 +224,7 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->expenseCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'income',
             'amount' => 55000,
@@ -232,9 +232,9 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getYearlyFlow($this->user->id);
-        
+
         expect($result['labels'])->toContain('2025')
             ->and($result['labels'])->toContain('2026')
             ->and($result['income'])->toContain(55000.0)
@@ -250,7 +250,7 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'income',
             'amount' => 30000,
@@ -258,9 +258,9 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getYearlyFlow($this->user->id);
-        
+
         // Should sum to 60000
         expect($result['income'])->toContain(60000.0);
     });
@@ -274,7 +274,7 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'income',
             'amount' => 1000,
@@ -282,7 +282,7 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         Transaction::create([
             'type' => 'income',
             'amount' => 1000,
@@ -290,9 +290,9 @@ describe('getYearlyFlow', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getYearlyFlow($this->user->id);
-        
+
         expect($result['labels'])->toBe(['2024', '2025', '2026']);
     });
 });
@@ -306,9 +306,9 @@ describe('edge cases', function () {
             'category_id' => $this->expenseCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getDailyFlow(7, $this->user->id);
-        
+
         expect($result['expenses'])->toContain(123.45);
     });
 
@@ -320,9 +320,9 @@ describe('edge cases', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getDailyFlow(7, $this->user->id);
-        
+
         expect($result['income'])->toContain(9999999.99);
     });
 
@@ -334,9 +334,9 @@ describe('edge cases', function () {
             'category_id' => $this->incomeCategory->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $result = $this->service->getDailyFlow(7, $this->user->id);
-        
+
         expect($result['income'])->toContain(100.0)
             ->and(array_filter($result['income']))->toHaveCount(1);
     });

@@ -1,8 +1,8 @@
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__.'/vendor/autoload.php';
 
-$app = require_once __DIR__ . '/bootstrap/app.php';
+$app = require_once __DIR__.'/bootstrap/app.php';
 $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
 use App\Models\Category;
@@ -20,7 +20,7 @@ try {
     // 1. Setup User and Categories
     $user = User::first() ?? User::factory()->create();
     $food = Category::where('name', 'Food')->first() ?? Category::create(['name' => 'Food', 'type' => 'expense', 'user_id' => $user->id]);
-    
+
     echo "Using User: {$user->email}\n";
 
     // Clear recent transactions for demo
@@ -28,8 +28,8 @@ try {
 
     // 2. Setup Scenarios
     $today = Carbon::parse('2026-01-20'); // A Tuesday
-    
-    echo "Evaluation Date: " . $today->toDateString() . " (Tuesday)\n";
+
+    echo 'Evaluation Date: '.$today->toDateString()." (Tuesday)\n";
     echo "Current Week: Jan 19 - Jan 25\n";
     echo "Previous Week: Jan 12 - Jan 18\n\n";
 
@@ -52,18 +52,18 @@ try {
     // 4. Output Results
     echo "\nTriggered Rules:\n";
     echo "----------------\n";
-    
+
     if (empty($results['triggered_rules'])) {
         echo "No rules triggered.\n";
     } else {
         foreach ($results['triggered_rules'] as $rule) {
             echo "[!] {$rule['rule_id']}\n";
-            echo "    Details: " . json_encode($rule['data'], JSON_PRETTY_PRINT) . "\n\n";
+            echo '    Details: '.json_encode($rule['data'], JSON_PRETTY_PRINT)."\n\n";
         }
     }
 
 } catch (\Exception $e) {
-    echo "ERROR: " . $e->getMessage() . "\n";
+    echo 'ERROR: '.$e->getMessage()."\n";
 } finally {
     DB::rollBack();
     echo "Database rolled back. Demo finished.\n";

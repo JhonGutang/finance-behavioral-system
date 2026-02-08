@@ -14,13 +14,14 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Sparkles, 
   CheckCircle2, 
-  Loader2,
   TrendingUp,
   ArrowUpRight,
   Coffee,
-  AlertTriangle
+  AlertTriangle,
+  ArrowRight
 } from 'lucide-vue-next';
 import { useFeedbackStore } from '@/stores/feedbackStore';
+import { useRouter } from 'vue-router';
 import type { EvaluationResponse } from '@/types';
 
 const isOpen = ref(false);
@@ -29,6 +30,7 @@ const results = ref<EvaluationResponse | null>(null);
 const error = ref<string | null>(null);
 
 const feedbackStore = useFeedbackStore();
+const router = useRouter();
 
 async function runEvaluation() {
   isOpen.value = true;
@@ -69,121 +71,137 @@ function getRuleIcon(ruleId: string) {
 
 function getRuleColor(ruleId: string) {
   switch (ruleId) {
-    case 'category_overspend': return 'text-orange-600 bg-orange-50 ring-orange-100';
-    case 'weekly_spending_spike': return 'text-red-600 bg-red-50 ring-red-100';
-    case 'frequent_small_purchases': return 'text-amber-600 bg-amber-50 ring-amber-100';
-    default: return 'text-slate-600 bg-slate-50 ring-slate-100';
+    case 'category_overspend': return 'text-amber-700 bg-amber-50 border-amber-100';
+    case 'weekly_spending_spike': return 'text-rose-700 bg-rose-50 border-rose-100';
+    case 'frequent_small_purchases': return 'text-emerald-700 bg-emerald-50 border-emerald-100';
+    default: return 'text-stone-600 bg-stone-50 border-stone-100';
   }
+}
+
+function navigateToInsights() {
+  isOpen.value = false;
+  router.push('/insights');
 }
 </script>
 
 <template>
   <Dialog v-model:open="isOpen">
-    <DialogContent class="sm:max-w-[600px] overflow-hidden p-0">
+    <DialogContent class="sm:max-w-[620px] overflow-hidden p-0 bg-[#FDFCF8] border-emerald-100 rounded-[2.5rem] shadow-2xl">
       <div class="relative overflow-hidden">
-        <!-- Background Accents -->
-        <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl" />
-        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/5 rounded-full blur-3xl" />
+        <!-- Background Grain -->
+        <div class="fixed inset-0 pointer-events-none opacity-20 mix-blend-multiply -z-10">
+          <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div>
+        </div>
 
-        <div class="p-6 relative">
-          <DialogHeader class="mb-6">
-            <div class="flex items-center gap-2 mb-2">
-              <Sparkles class="w-5 h-5 text-blue-600" />
-              <Badge variant="secondary" class="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none">
-                Behavioral Analysis
+        <div class="p-8 relative">
+          <DialogHeader class="mb-8">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+                 <Sparkles class="w-5 h-5" />
+              </div>
+              <Badge variant="secondary" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-100 font-bold tracking-widest text-[10px] uppercase">
+                Heuristic Engine
               </Badge>
             </div>
-            <DialogTitle class="text-2xl font-bold">Financial Habit Analysis</DialogTitle>
-            <DialogDescription>
-              We've analyzed your spending patterns for the current week compared to your baseline.
+            <DialogTitle class="text-3xl font-serif text-emerald-950">Behavioral Harvest</DialogTitle>
+            <DialogDescription class="text-emerald-900/60 font-light text-base mt-2">
+              Our sensory arrays have processed your recent activity. Here is what we've unearthed.
             </DialogDescription>
           </DialogHeader>
 
           <!-- Loading State -->
-          <div v-if="loading" class="py-12 flex flex-col items-center justify-center space-y-4">
-            <Loader2 class="w-12 h-12 text-blue-600 animate-spin" />
+          <div v-if="loading" class="py-16 flex flex-col items-center justify-center space-y-6">
+            <div class="relative">
+               <div class="w-20 h-20 rounded-full border-2 border-emerald-100 border-t-emerald-600 animate-spin"></div>
+               <div class="absolute inset-0 flex items-center justify-center">
+                  <Sparkles class="w-6 h-6 text-emerald-600 animate-pulse" />
+               </div>
+            </div>
             <div class="text-center">
-              <p class="font-semibold text-slate-900">Running Heuristic Rules...</p>
-              <p class="text-sm text-slate-500">Detecting spending drift and frequency patterns</p>
+              <p class="font-serif text-xl text-emerald-950 italic">Analyzing spending drift...</p>
+              <p class="text-xs uppercase tracking-[0.2em] font-bold text-emerald-900/30 mt-2">Connecting patterns to baseline</p>
             </div>
           </div>
 
           <!-- Error State -->
-          <div v-else-if="error" class="py-8 text-center space-y-4">
-            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-              <AlertTriangle class="w-6 h-6" />
+          <div v-else-if="error" class="py-12 text-center space-y-6">
+            <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto border border-rose-100">
+              <AlertTriangle class="w-8 h-8" />
             </div>
-            <p class="text-slate-800 font-medium">{{ error }}</p>
-            <Button @click="runEvaluation">Try Again</Button>
+            <p class="text-emerald-950 font-serif text-xl">{{ error }}</p>
+            <Button @click="runEvaluation" class="rounded-full bg-emerald-900 hover:bg-emerald-800 text-white px-8 h-11 font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-emerald-900/10 transition-all">Try Again</Button>
           </div>
 
           <!-- Results State -->
-          <div v-else-if="results" class="space-y-4">
-            <div v-if="results.evaluation.triggered_rules.length === 0" class="py-12 text-center space-y-4">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle2 class="w-8 h-8" />
+          <div v-else-if="results" class="space-y-6">
+            <div v-if="results.evaluation.triggered_rules.length === 0" class="py-12 text-center space-y-6">
+                <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100 shadow-sm">
+                  <CheckCircle2 class="w-10 h-10" />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-slate-900">All habits look stable!</h3>
-                  <p class="text-slate-500 max-w-sm mx-auto">No negative spending patterns were detected for this week. Great job maintaining your baseline!</p>
+                  <h3 class="text-2xl font-serif text-emerald-950 mb-2">Pristine Discipline</h3>
+                  <p class="text-emerald-900/50 max-w-sm mx-auto font-light leading-relaxed">No anomalies detected in your spending geometry this week. Your financial garden is in perfect balance.</p>
                 </div>
             </div>
 
-            <div v-else class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            <div v-else class="space-y-4 max-h-[400px] overflow-y-auto pr-3 custom-scrollbar">
               <Card 
                 v-for="rule in results.evaluation.triggered_rules" 
                 :key="rule.rule_id"
-                class="border-slate-200 overflow-hidden"
+                class="border-emerald-50 bg-white/60 backdrop-blur-sm overflow-hidden rounded-3xl group transition-all hover:bg-white"
               >
                 <div class="flex">
                   <div 
                     :class="[
                       'w-1.5 shrink-0',
-                      rule.rule_id === 'category_overspend' ? 'bg-orange-500' : 
-                      rule.rule_id === 'weekly_spending_spike' ? 'bg-red-500' : 'bg-amber-500'
+                      rule.rule_id === 'category_overspend' ? 'bg-amber-500' : 
+                      rule.rule_id === 'weekly_spending_spike' ? 'bg-rose-500' : 'bg-emerald-500'
                     ]" 
                   />
-                  <div class="p-4 flex-1">
-                    <div class="flex items-start justify-between gap-4 mb-2">
-                      <div class="flex items-center gap-2">
-                        <component 
-                          :is="getRuleIcon(rule.rule_id)" 
-                          class="w-5 h-5 text-slate-700"
-                        />
-                        <h3 class="font-bold text-slate-900">{{ getRuleTitle(rule.rule_id) }}</h3>
+                  <div class="p-5 flex-1">
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                      <div class="flex items-center gap-3">
+                        <div class="p-2 bg-stone-50 rounded-xl border border-stone-100 group-hover:bg-white transition-colors">
+                           <component 
+                            :is="getRuleIcon(rule.rule_id)" 
+                            class="w-5 h-5 text-emerald-900"
+                          />
+                        </div>
+                        <h3 class="font-serif text-lg text-emerald-950 font-medium">{{ getRuleTitle(rule.rule_id) }}</h3>
                       </div>
                       <Badge 
                         variant="outline" 
-                        :class="[getRuleColor(rule.rule_id), 'border-none ring-1']"
+                        :class="[getRuleColor(rule.rule_id), 'rounded-full border-none ring-1 px-3 py-0.5 text-[9px] font-black uppercase tracking-widest']"
                       >
-                        Action Needed
+                        Action Recommended
                       </Badge>
                     </div>
 
-                    <div class="text-sm text-slate-600 space-y-2">
-                      <p v-if="rule.rule_id === 'category_overspend'">
-                        Analysis detected a <span class="font-bold text-slate-900">{{ rule.data.increase_percentage }}%</span> jump in 
-                        <span class="font-bold text-slate-900">{{ rule.data.category }}</span> spending 
-                        compared to last week (${{ rule.data.previous_week_amount }} &rarr; ${{ rule.data.current_week_amount }}).
+                    <div class="text-sm text-emerald-900/70 space-y-3 leading-relaxed">
+                      <p v-if="rule.rule_id === 'category_overspend'" class="font-light">
+                        Analyzed a <span class="font-bold text-emerald-950">{{ rule.data.increase_percentage }}%</span> surge in 
+                        <span class="font-bold text-emerald-950">{{ rule.data.category }}</span> 
+                        compared to prior week baseline (₱{{ rule.data.previous_week_amount.toLocaleString() }} &rarr; ₱{{ rule.data.current_week_amount.toLocaleString() }}).
                       </p>
                       
-                      <p v-else-if="rule.rule_id === 'weekly_spending_spike'">
-                        Your overall burn rate is up <span class="font-bold text-slate-900">{{ rule.data.increase_percentage }}%</span> 
-                        from last week's total of ${{ rule.data.previous_week_total }}.
+                      <p v-else-if="rule.rule_id === 'weekly_spending_spike'" class="font-light">
+                        Overall burn rate has intensified by <span class="font-bold text-emerald-950">{{ rule.data.increase_percentage }}%</span> 
+                        from previous total of ₱{{ rule.data.previous_week_total.toLocaleString() }}.
                       </p>
 
-                      <p v-else-if="rule.rule_id === 'frequent_small_purchases'">
-                        You've made <span class="font-bold text-slate-900">{{ rule.data.transaction_count }}</span> small purchases 
-                        (under ${{ rule.data.amount_limit }}) this week, averaging ${{ rule.data.average_amount }} each.
+                      <p v-else-if="rule.rule_id === 'frequent_small_purchases'" class="font-light">
+                        Identity confirmed: <span class="font-bold text-emerald-950">{{ rule.data.transaction_count }}</span> micro-transactions 
+                        (under ₱{{ rule.data.amount_limit }}) detected, averaging ₱{{ rule.data.average_amount.toLocaleString() }} each.
                       </p>
 
-                      <div class="pt-2 mt-2 border-t border-slate-100">
-                        <p class="text-[12px] text-slate-400 italic">
-                          Why this matters: {{ 
+                      <div class="pt-3 mt-3 border-t border-emerald-50">
+                        <p class="text-[11px] text-emerald-800 italic font-bold flex items-start gap-2">
+                          <span class="font-black shrink-0 uppercase tracking-widest">Context:</span>
+                          <span>{{ 
                             rule.rule_id === 'category_overspend' ? 'Sudden category increases often indicate "spending creep" where temporary treats become permanent habits.' :
                             rule.rule_id === 'weekly_spending_spike' ? 'Large spikes in total spending can derail long-term savings goals if not actively monitored.' :
                             'Frequent small transactions are often mindless impulse buys that add up to significant leakage over time.'
-                          }}
+                          }}</span>
                         </p>
                       </div>
                     </div>
@@ -193,10 +211,17 @@ function getRuleColor(ruleId: string) {
             </div>
           </div>
 
-          <DialogFooter class="mt-8">
-            <Button variant="outline" @click="isOpen = false">Close</Button>
-            <Button v-if="results && results.evaluation.triggered_rules.length > 0" class="bg-blue-600 hover:bg-blue-700">
-              Create Savings Plan
+          <DialogFooter class="mt-10 sm:justify-between items-center gap-6 pt-6 border-t border-emerald-50">
+            <Button variant="ghost" @click="isOpen = false" class="rounded-full text-stone-500 hover:text-emerald-950 font-bold uppercase tracking-widest text-[10px] h-11 transition-all">
+              Close Report
+            </Button>
+            <Button 
+              v-if="results" 
+              @click="navigateToInsights"
+              class="rounded-full bg-emerald-900 hover:bg-emerald-800 text-white px-10 h-11 shadow-lg shadow-emerald-900/10 transition-all font-bold uppercase tracking-widest text-[11px] group"
+            >
+              Analyze Deeper
+              <ArrowRight class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </DialogFooter>
         </div>
@@ -206,6 +231,12 @@ function getRuleColor(ruleId: string) {
 </template>
 
 <style scoped>
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -213,10 +244,10 @@ function getRuleColor(ruleId: string) {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: rgba(16, 185, 129, 0.1);
   border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  background: rgba(16, 185, 129, 0.2);
 }
 </style>

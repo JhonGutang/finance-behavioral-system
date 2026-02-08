@@ -60,8 +60,8 @@ class CategoryRepository
     public function update(int $id, int $userId, array $data): bool
     {
         $category = $this->getById($id, $userId);
-        
-        if (!$category || $category->user_id !== $userId) {
+
+        if (! $category || $category->user_id !== $userId) {
             return false; // Cannot update default or others' categories
         }
 
@@ -74,8 +74,8 @@ class CategoryRepository
     public function delete(int $id, int $userId): bool
     {
         $category = $this->getById($id, $userId);
-        
-        if (!$category || $category->user_id !== $userId) {
+
+        if (! $category || $category->user_id !== $userId) {
             return false;
         }
 
@@ -93,8 +93,8 @@ class CategoryRepository
     public function hasTransactions(int $id, int $userId): bool
     {
         $category = $this->getById($id, $userId);
-        
-        if (!$category) {
+
+        if (! $category) {
             return false;
         }
 

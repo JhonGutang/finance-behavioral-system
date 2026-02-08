@@ -1,12 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\HealthController;
-use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\RuleEngineController;
+use App\Http\Controllers\Api\TransactionController;
+use Illuminate\Support\Facades\Route;
 
 // Health check routes
 Route::get('/health', [HealthController::class, 'health']);
@@ -30,6 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Transaction routes
     Route::get('/transactions/summary', [TransactionController::class, 'summary']);
+    Route::post('/transactions/import-preview', [TransactionController::class, 'importPreview']);
+    Route::post('/transactions/import-confirm', [TransactionController::class, 'importConfirm']);
     Route::apiResource('transactions', TransactionController::class);
 
     // Rule Engine routes

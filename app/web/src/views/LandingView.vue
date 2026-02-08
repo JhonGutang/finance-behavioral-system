@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Motion } from 'motion-v';
 import { 
   TrendingUp, 
-  Zap, 
-  Target, 
-  Brain, 
-  Sparkles, 
+  Leaf, 
+  Sprout, 
+  Flower2,
   ArrowRight,
   ShieldCheck,
-  MousePointerClick,
-  Layers,
-  Fingerprint
+  Layers
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -23,43 +20,37 @@ const navigateToDashboard = () => {
 
 const features = [
   {
-    icon: TrendingUp,
-    title: 'Smart Alerts',
-    description: 'Catch spending spikes before they become permanent habits.',
-    color: 'emerald',
+    icon: Leaf,
+    title: 'Natural Growth',
+    description: 'Watch your savings grow organically with disciplined habits.',
     delay: 0.1
   },
   {
-    icon: Zap,
-    title: 'Personal Growth',
-    description: 'Insights that evolve with you as your spending improves.',
-    color: 'indigo',
+    icon: Sprout,
+    title: 'Rooted Insights',
+    description: 'Deep analytics that help you understand the core of your spending.',
     delay: 0.2
   },
   {
-    icon: Target,
-    title: 'Habit Mastery',
-    description: 'Uncover hidden patterns and build a healthier future.',
-    color: 'blue',
+    icon: Flower2,
+    title: 'Blossoming Future',
+    description: 'Nurture your financial health for a prosperous tomorrow.',
     delay: 0.3
   }
 ];
 
 const stats = [
-  { label: 'Habits Analyzed', value: '10k+' },
-  { label: 'User Progress', value: '85%' },
-  { label: 'Focus Areas', value: '3' }
+  { label: 'Active Savers', value: '12,500+' },
+  { label: 'Wealth Generated', value: '$45M+' },
+  { label: 'Trust Score', value: '99.9%' }
 ];
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#020617] text-slate-200 selection:bg-emerald-500/30 overflow-hidden">
-    <!-- Ambient Background -->
-    <div class="fixed inset-0 pointer-events-none">
-      <div class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse"></div>
-      <div class="absolute -bottom-1/4 -left-1/4 w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse" style="animation-duration: 8s"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-      <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+  <div class="min-h-screen bg-[#FDFCF8] text-emerald-950 selection:bg-emerald-200 selection:text-emerald-900 overflow-hidden font-inter">
+    <!-- Subtle Grain Texture -->
+    <div class="fixed inset-0 pointer-events-none opacity-40 mix-blend-multiply">
+      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-50"></div>
     </div>
 
     <!-- Navigation -->
@@ -67,172 +58,206 @@ const stats = [
       as="nav"
       :initial="{ y: -20, opacity: 0 }"
       :animate="{ y: 0, opacity: 1 }"
-      class="relative z-50 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto"
+      :transition="{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }"
+      class="relative z-50 flex items-center justify-between px-6 py-8 max-w-7xl mx-auto"
     >
-      <div class="flex items-center gap-2 group cursor-pointer">
-        <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-          <Layers class="w-6 h-6 text-white" />
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-emerald-900 rounded-full flex items-center justify-center">
+            <Layers class="w-4 h-4 text-[#FDFCF8]" />
         </div>
-        <span class="text-xl font-bold tracking-tight text-white">Spendlytic</span>
+        <span class="text-xl font-serif font-medium tracking-tight text-emerald-950">Spendlytic</span>
       </div>
-      <div class="flex items-center gap-6 text-sm font-medium">
-        <button @click="navigateToDashboard" class="hover:text-emerald-400 transition-colors">Sign In</button>
-        <Button @click="navigateToDashboard" variant="default" class="bg-white text-slate-950 hover:bg-emerald-400 hover:text-white transition-all rounded-full px-6">
+      <div class="flex items-center gap-8 text-sm font-medium tracking-wide">
+        <button @click="navigateToDashboard" class="text-emerald-900/70 hover:text-emerald-900 transition-colors">Log in</button>
+        <Button @click="navigateToDashboard" variant="default" class="bg-emerald-900 text-[#FDFCF8] hover:bg-emerald-800 transition-all rounded-full h-11 px-6 text-[11px] font-bold tracking-widest uppercase">
           Start Journey
         </Button>
       </div>
     </Motion>
 
     <!-- Hero Section -->
-    <section class="relative pt-20 pb-16 px-6 max-w-7xl mx-auto">
-      <div class="flex flex-col items-center text-center">
-        <!-- Badge -->
-        <Motion
-          :initial="{ opacity: 0, scale: 0.9 }"
-          :animate="{ opacity: 1, scale: 1 }"
-          :transition="{ delay: 0.2 }"
-          class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-xs font-semibold mb-8 backdrop-blur-md"
-        >
-          <Sparkles class="w-3 h-3" />
-          <span>TAKE CHARGE OF YOUR FINANCES</span>
-        </Motion>
+    <section class="relative pt-10 pb-32 px-6 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <!-- Text Content -->
+        <div class="relative z-10">
+            <Motion
+            :initial="{ opacity: 0, y: 20 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :transition="{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }"
+            >
+                <span class="inline-block py-1 px-3 border border-emerald-900/10 rounded-full text-xs font-semibold tracking-wider text-emerald-800 mb-8 uppercase bg-emerald-50">
+                    Financial Wellness
+                </span>
+            </Motion>
+            
+          <div class="relative">
+            <Motion
+              as="h1"
+              :initial="{ opacity: 0, y: 30 }"
+              :animate="{ opacity: 1, y: 0 }"
+              :transition="{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }"
+              class="text-6xl md:text-7xl lg:text-8xl font-serif font-medium text-emerald-950 mb-8 leading-[1.05]"
+            >
+              Calm, <br />
+              <span class="text-emerald-800 italic">Disciplined</span> <br />
+              Wealth.
+            </Motion>
+          </div>
 
-        <!-- Main Heading -->
-        <div class="relative max-w-4xl">
           <Motion
-            as="h1"
-            :initial="{ opacity: 0, filter: 'blur(10px)', y: 20 }"
-            :animate="{ opacity: 1, filter: 'blur(0px)', y: 0 }"
-            :transition="{ duration: 0.8, ease: 'easeOut' }"
-            class="text-6xl md:text-8xl font-black tracking-tighter text-white mb-6 leading-[0.9]"
+            as="p"
+            :initial="{ opacity: 0, y: 20 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :transition="{ delay: 0.3, duration: 0.8 }"
+            class="max-w-md text-lg text-emerald-900/70 mb-12 leading-relaxed font-light"
           >
-            Master Your <br />
-            <span class="bg-gradient-to-r from-emerald-400 via-indigo-400 to-emerald-400 bg-size-200 animate-gradient bg-clip-text text-transparent">
-              Spending Habits
-            </span>
+            Cultivate a relationship with money that brings peace, not stress. 
+            Smart insights for a flourishing financial life.
+          </Motion>
+
+          <Motion
+            :initial="{ opacity: 0, y: 20 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :transition="{ delay: 0.4, duration: 0.8 }"
+            class="flex flex-col sm:flex-row gap-5 items-start sm:items-center"
+          >
+            <Button 
+              @click="navigateToDashboard"
+              class="h-11 px-10 rounded-full bg-emerald-900 text-[#FDFCF8] hover:bg-emerald-800 transition-all text-[11px] font-bold tracking-[0.2em] uppercase shadow-lg shadow-emerald-900/10"
+            >
+              Begin Now
+            </Button>
+            <button 
+              @click="() => router.push('/transactions')"
+              class="group flex items-center gap-3 text-emerald-900 hover:text-emerald-700 transition-colors py-4 px-4"
+            >
+              <span class="text-sm font-medium tracking-wide border-b border-emerald-900/30 group-hover:border-emerald-900 transition-all pb-0.5">How it works</span>
+              <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
           </Motion>
         </div>
 
-        <!-- Subheading -->
-        <Motion
-          as="p"
-          :initial="{ opacity: 0, y: 10 }"
-          :animate="{ opacity: 1, y: 0 }"
-          :transition="{ delay: 0.4, duration: 0.6 }"
-          class="max-w-2xl text-lg md:text-xl text-slate-400 mb-10 leading-relaxed"
-        >
-          Stop wondering where your money went. Build a healthier relationship with your finances through 
-          intelligent, supportive insights designed to help you grow.
-        </Motion>
-
-        <!-- CTAs -->
-        <Motion
-          :initial="{ opacity: 0, y: 10 }"
-          :animate="{ opacity: 1, y: 0 }"
-          :transition="{ delay: 0.6, duration: 0.6 }"
-          class="flex flex-col sm:flex-row gap-4 items-center"
-        >
-          <Button 
-            @click="navigateToDashboard"
-            class="h-14 px-10 rounded-2xl bg-gradient-to-r from-emerald-500 to-indigo-600 text-white font-bold text-lg shadow-2xl shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 transition-all"
-          >
-            Start Your Journey
-            <ArrowRight class="ml-2 w-5 h-5" />
-          </Button>
-          <button 
-            @click="() => router.push('/transactions')"
-            class="group flex items-center gap-2 text-slate-400 hover:text-white transition-colors py-4 px-6 rounded-2xl border border-transparent hover:border-slate-800"
-          >
-            <MousePointerClick class="w-5 h-5" />
-            <span>Discover How It Works</span>
-          </button>
-        </Motion>
-
-        <!-- Stats Grid -->
-        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
-          <Motion
-            v-for="(stat, i) in stats"
-            :key="i"
-            :initial="{ opacity: 0, scale: 0.9 }"
-            :animate="{ opacity: 1, scale: 1 }"
-            :transition="{ delay: 0.8 + (i * 0.1) }"
-            class="p-8 rounded-3xl border border-slate-800 bg-slate-900/50 backdrop-blur-xl group hover:border-emerald-500/30 transition-all"
-          >
-            <div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{{ stat.label }}</div>
-            <div class="text-4xl font-black text-white group-hover:text-emerald-400 transition-colors">{{ stat.value }}</div>
-          </Motion>
+        <!-- Visual/Abstract Art -->
+        <div class="relative h-[600px] hidden lg:block">
+             <Motion
+                :initial="{ opacity: 0, scale: 0.95 }"
+                :animate="{ opacity: 1, scale: 1 }"
+                :transition="{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }"
+                class="absolute inset-0"
+             >
+                <!-- Abstract Green Shapes -->
+                <div class="absolute top-10 right-10 w-96 h-96 bg-emerald-800/5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-10 left-10 w-80 h-80 bg-emerald-600/5 rounded-full blur-3xl"></div>
+                
+                <!-- Main Image/Graphic Placeholder - utilizing a clean, editorial composition -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="relative w-full max-w-md aspect-[4/5] bg-emerald-900 rounded-t-[10rem] rounded-b-[2rem] overflow-hidden shadow-2xl shadow-emerald-900/10">
+                        <img 
+                            src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop" 
+                            alt="Calm Abstract Nature" 
+                            class="w-full h-full object-cover opacity-80 mix-blend-overlay hover:scale-105 transition-transform duration-[2s]"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/60 to-transparent"></div>
+                        
+                        <!-- Floating Card -->
+                        <div class="absolute bottom-8 left-8 right-8 bg-[#FDFCF8]/95 backdrop-blur-sm p-6 rounded-2xl border border-emerald-100 shadow-lg">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="text-xs text-emerald-600 uppercase tracking-wider font-bold mb-1">Monthly Growth</div>
+                                    <div class="text-3xl font-serif text-emerald-950">+24%</div>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800">
+                                    <TrendingUp class="w-4 h-4" />
+                                </div>
+                            </div>
+                            <div class="w-full bg-emerald-100 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-800 h-full w-[70%] rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </Motion>
         </div>
       </div>
     </section>
 
-    <!-- Bento Section -->
-    <section class="py-24 px-6 max-w-7xl mx-auto">
-      <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-full">
-        <!-- Main Feature Bento -->
-        <Motion
-          :while-hover="{ scale: 1.01 }"
-          class="md:col-span-2 md:row-span-2 p-8 rounded-[2rem] bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 relative overflow-hidden group"
-        >
-          <div class="relative z-10 flex flex-col h-full">
-            <div class="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-6">
-              <Brain class="w-8 h-8 text-indigo-400" />
-            </div>
-            <h3 class="text-3xl font-bold text-white mb-4">Intelligent Habit Tracking</h3>
-            <p class="text-slate-400 lg:w-4/5 leading-relaxed">
-              Our system doesn't just list transactions. It identifies the "why" behind your spending patterns and provides gentle, constructive feedback to help you stay on track.
-            </p>
-            <div class="mt-auto pt-8">
-              <div class="flex gap-2">
-                <span class="px-3 py-1 bg-indigo-500/20 rounded-full text-[10px] font-bold text-indigo-300 uppercase tracking-wider">Mindful Spending</span>
-                <span class="px-3 py-1 bg-emerald-500/20 rounded-full text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Goal Aligned</span>
-              </div>
-            </div>
-          </div>
-          <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all"></div>
-        </Motion>
-
-        <!-- Feature Grid Cards -->
-        <Motion
-          v-for="(feature, i) in features"
-          :key="i"
-          class="p-8 rounded-[2rem] border border-slate-800 bg-slate-900/30 backdrop-blur-sm flex flex-col hover:border-slate-700 transition-all group"
-        >
-          <div :class="`w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-${feature.color}-500/10`">
-            <component :is="feature.icon" :class="`w-5 h-5 text-${feature.color}-400`" />
-          </div>
-          <h4 class="text-lg font-bold text-white mb-2">{{ feature.title }}</h4>
-          <p class="text-sm text-slate-500">{{ feature.description }}</p>
-        </Motion>
-
-        <!-- Call to Action Bento -->
-        <Motion
-          class="md:col-span-1 p-8 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/20 flex flex-col justify-center items-center text-center group cursor-pointer"
-          @click="navigateToDashboard"
-        >
-          <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <Fingerprint class="w-6 h-6 text-emerald-400" />
-          </div>
-          <div class="text-sm font-bold text-emerald-400 mb-1">SECURE PRIVACY</div>
-          <div class="text-xs text-slate-500">Your Data, Your Control</div>
-        </Motion>
+    <!-- Editorial Features -->
+    <section class="py-24 px-6 border-t border-emerald-900/5">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <Motion
+            v-for="(feature, i) in features"
+            :key="i"
+            :initial="{ opacity: 0, y: 20 }"
+            :while-in-view="{ opacity: 1, y: 0 }"
+            :viewport="{ once: true }"
+            :transition="{ delay: i * 0.2, duration: 0.8 }"
+            class="group"
+            >
+                <div class="w-12 h-12 mb-6 border border-emerald-900/10 rounded-full flex items-center justify-center text-emerald-800 group-hover:bg-emerald-900 group-hover:text-[#FDFCF8] transition-all duration-500 mx-auto">
+                    <component :is="feature.icon" class="w-5 h-5" />
+                </div>
+                <h3 class="text-xl font-serif text-emerald-950 mb-3">{{ feature.title }}</h3>
+                <p class="text-emerald-900/60 leading-relaxed font-light">{{ feature.description }}</p>
+            </Motion>
+        </div>
       </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-24 bg-emerald-900 text-[#FDFCF8]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-emerald-800/50">
+                <Motion 
+                    v-for="(stat, i) in stats" 
+                    :key="i"
+                    :initial="{ opacity: 0, scale: 0.9 }"
+                    :while-in-view="{ opacity: 1, scale: 1 }"
+                    :viewport="{ once: true }"
+                    :transition="{ delay: i * 0.1, duration: 0.6 }"
+                    class="pt-8 md:pt-0 px-4"
+                >
+                    <div class="text-5xl md:text-6xl font-serif mb-2">{{ stat.value }}</div>
+                    <div class="text-emerald-200/60 uppercase tracking-widest text-xs">{{ stat.label }}</div>
+                </Motion>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-32 px-6 text-center max-w-4xl mx-auto">
+        <Motion
+            :initial="{ opacity: 0, y: 30 }"
+            :while-in-view="{ opacity: 1, y: 0 }"
+            :viewport="{ once: true }"
+            :transition="{ duration: 0.8 }"
+        >
+            <h2 class="text-4xl md:text-6xl font-serif text-emerald-950 mb-8">Ready to cultivate your wealth?</h2>
+            <p class="text-lg text-emerald-900/60 mb-10 font-light">Join a community of disciplined savers building their future.</p>
+            <Button 
+              @click="navigateToDashboard"
+              class="h-12 px-12 rounded-full bg-emerald-950 text-[#FDFCF8] hover:bg-emerald-800 transition-all text-xs font-bold tracking-[0.2em] uppercase shadow-xl hover:shadow-2xl hover:-translate-y-1"
+            >
+              Start Your Journey
+            </Button>
+        </Motion>
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-900 py-12 px-6">
+    <footer class="border-t border-emerald-900/5 py-12 px-6">
       <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
         <div class="flex items-center gap-2">
-          <Layers class="w-5 h-5 text-emerald-500" />
-          <span class="font-bold text-white">Spendlytic</span>
+          <Layers class="w-5 h-5 text-emerald-900" />
+          <span class="font-serif font-medium text-emerald-950">Spendlytic</span>
         </div>
-        <div class="flex gap-8 text-sm text-slate-500">
-          <a href="#" class="hover:text-emerald-400 transition-colors">Manifesto</a>
-          <a href="#" class="hover:text-emerald-400 transition-colors">Architecture</a>
-          <a href="#" class="hover:text-emerald-400 transition-colors">Security</a>
+        <div class="flex gap-8 text-sm text-emerald-900/60">
+          <a href="#" class="hover:text-emerald-900 transition-colors">Manifesto</a>
+          <a href="#" class="hover:text-emerald-900 transition-colors">Architecture</a>
+          <a href="#" class="hover:text-emerald-900 transition-colors">Security</a>
         </div>
-        <div class="flex items-center gap-2 text-xs text-slate-600">
+        <div class="flex items-center gap-2 text-xs text-emerald-900/40">
           <ShieldCheck class="w-4 h-4" />
-          <span>Deterministic Integrity Guaranteed</span>
+          <span>Secure. Private. Disciplined.</span>
         </div>
       </div>
     </footer>
@@ -240,35 +265,10 @@ const stats = [
 </template>
 
 <style scoped>
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.font-serif {
+    font-family: 'Playfair Display', serif;
 }
-
-.animate-gradient {
-  background-size: 200% auto;
-  animation: gradient 5s ease infinite;
+.font-inter {
+    font-family: 'Inter', sans-serif;
 }
-
-.bg-size-200 {
-  background-size: 200% 200%;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.1; transform: scale(1); }
-  50% { opacity: 0.15; transform: scale(1.05); }
-}
-
-.animate-pulse {
-  animation: pulse 6s ease-in-out infinite;
-}
-
-/* Custom colors for dynamic class names */
-.bg-emerald-500\/10 { background-color: rgb(16 185 129 / 0.1); }
-.bg-indigo-500\/10 { background-color: rgb(99 102 241 / 0.1); }
-.bg-blue-500\/10 { background-color: rgb(59 130 246 / 0.1); }
-.text-emerald-400 { color: rgb(52 211 153); }
-.text-indigo-400 { color: rgb(129 140 248); }
-.text-blue-400 { color: rgb(96 165 250); }
 </style>

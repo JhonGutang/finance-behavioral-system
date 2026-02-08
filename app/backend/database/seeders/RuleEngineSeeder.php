@@ -17,8 +17,7 @@ class RuleEngineSeeder extends Seeder
     public function run(
         \App\Services\RuleEngineService $ruleEngineService,
         \App\Services\FeedbackEngineService $feedbackEngineService
-    ): void
-    {
+    ): void {
         // 1. Create Demo User
         $user = User::updateOrCreate(
             ['email' => 'demo@example.com'],
@@ -40,11 +39,11 @@ class RuleEngineSeeder extends Seeder
 
         // 2. Setup History (Last 4 weeks)
         $now = Carbon::now();
-        
+
         for ($i = 4; $i >= 0; $i--) {
             $targetDate = $now->clone()->subWeeks($i);
             $monday = $targetDate->clone()->startOfWeek(Carbon::MONDAY);
-            
+
             // Generate varied data based on the week index to simulate behavioral changes
             if ($i === 4) {
                 // Baseline week (Low spending)
@@ -82,7 +81,7 @@ class RuleEngineSeeder extends Seeder
             'date' => $date->toDateString(),
             'category_id' => $categoryId,
             'user_id' => $userId,
-            'description' => 'Simulated Transaction'
+            'description' => 'Simulated Transaction',
         ]);
     }
 
@@ -96,7 +95,7 @@ class RuleEngineSeeder extends Seeder
                 'date' => $monday->clone()->addDays(rand(0, 4))->toDateString(),
                 'category_id' => $categoryId,
                 'user_id' => $userId,
-                'description' => $smallItems[array_rand($smallItems)]
+                'description' => $smallItems[array_rand($smallItems)],
             ]);
         }
     }

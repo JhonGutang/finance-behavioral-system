@@ -1,7 +1,7 @@
 # Spendlytic: Finance Behavioral System
 
-> **Current Phase:** MVP - Adaptive Feedback Engine  
-> **Status:** Initial Development
+> **Current Phase:** MVP - Refinement  
+> **Status:** Behavioral Features & CSV Support Implemented
 
 ---
 
@@ -12,6 +12,9 @@ An engineering-focused finance tracker that explores how **deterministic feedbac
 > [!IMPORTANT]
 > This is an **engineering exploration**, not a production finance app. Focus is on system design, rule-based logic, and adaptive behavior.
 
+> [!CAUTION]
+> **STRICT UI STANDARD:** All visual modifications MUST strictly adhere to the **Disciplined UI** rulings (Button height `h-11`, `rounded-full`, etc.). Failure to follow the layout hierarchy in [`docs/design-system.md`](./docs/design-system.md) is considered a breaking change.
+
 ### Current Scope (MVP)
 
 **Building:** Finance tracker with adaptive feedback engine including:
@@ -21,7 +24,7 @@ An engineering-focused finance tracker that explores how **deterministic feedbac
 - Adaptive feedback that evolves with user progress
 - Dashboard/CLI output for viewing results
 
-**Reference:** See [`docs/low-concept.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/low-concept.md) for MVP overview and [`docs/finance-tracking.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/finance-tracking.md) for detailed system design.
+**Reference:** See [`docs/low-concept.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/low-concept.md) for MVP overview and [`docs/finance-tracking.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/finance-tracking.md) for detailed system design.
 
 ### Future Roadmap
 
@@ -53,6 +56,14 @@ Planned features (**NOT** for current implementation):
 - Comments only for complex logic
 - Proper formatting, spacing, indentation
 
+**Import Style (TypeScript):**
+- Avoid inline type imports (e.g., `Promise<import('../types').PaginatedResponse<Transaction>>`)
+- ALWAYS use top-level `import type` statements for external types
+
+**Import Style (PHP):**
+- Avoid inline namespace imports (e.g., `private \App\Services\Service $service`)
+- ALWAYS use `use` statements at the top of the file for all classes and types
+
 **Constants & Config:**
 - Magic numbers → Named constants (UPPER_CASE)
 - Configuration in `config/` folder
@@ -62,6 +73,15 @@ Planned features (**NOT** for current implementation):
 - Appropriate levels of abstraction
 - Single responsibility per function
 - Extract complex logic into well-named helpers
+
+### UI & Visual Excellence
+
+**Disciplined UI Standard:**
+- **Buttons:** MUST be `h-11`, `rounded-full`, `uppercase font-bold`, and `tracking-widest`.
+- **Contrast:** NEVER use low-opacity text for critical info. Use high-contrast, solid colors.
+- **Typography:** Titles in `font-serif`, data/body in `font-inter`.
+- **Tone:** Use the "Financial Garden" botanical terminology (Seeds, Harvest, Wisdom).
+- **Reference:** Always follow [`docs/design-system.md`](./docs/design-system.md).
 
 ### Workflow
 
@@ -122,7 +142,7 @@ View → Component → Composable → Store → Service → Model
 > **Type Checking:** Before running ANY command (build, dev, test, etc.), ALWAYS run `npm run type-check` first to ensure there are no TypeScript errors. Never proceed with commands if type errors exist.
 
 > [!NOTE]
-> See [`docs/finance-tracking.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/finance-tracking.md) for detailed architecture decisions and layer responsibilities.
+> See [`docs/finance-tracking.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/finance-tracking.md) for detailed architecture decisions and layer responsibilities.
 
 ---
 
@@ -172,13 +192,14 @@ View → Component → Composable → Store → Service → Model
 ## Documentation
 
 **MVP Documentation:**
-- **[system-overview.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/system-overview.md)** - Logic flow and architecture overview
-- **[low-concept.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/low-concept.md)** - MVP overview and project scope
-- **[finance-tracking.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/finance-tracking.md)** - Detailed system design, data models, architecture
-- **[features.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/features.md)** - Current implemented features lookup
-- **[rule-engine.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/rule-engine.md)** - Pattern detection rules and evaluation logic
-- **[finance-habit-tracker.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/finance-habit-tracker.md)** - Adaptive feedback system architecture
-- **[date-formatter.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/date-formatter.md)** - Date formatting utility documentation
+- **[system-overview.md](./docs/system-overview.md)** - Logic flow and architecture overview
+- **[low-concept.md](./docs/low-concept.md)** - MVP overview and project scope
+- **[finance-tracking.md](./docs/finance-tracking.md)** - Detailed system design, data models, architecture
+- **[features.md](./docs/features.md)** - Current implemented features lookup
+- **[design-system.md](./docs/design-system.md)** - UI/UX standards and design philosophy
+- **[rule-engine.md](./docs/rule-engine.md)** - Pattern detection rules and evaluation logic
+- **[finance-habit-tracker.md](./docs/finance-habit-tracker.md)** - Adaptive feedback system architecture
+- **[date-formatter.md](./docs/date-formatter.md)** - Date formatting utility documentation
 
 **Future Reference (NOT for MVP):**
-- **[mid-concept.md](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/mid-concept.md)** - Extended concept and design philosophy (advanced features)
+- **[mid-concept.md](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/mid-concept.md)** - Extended concept and design philosophy (advanced features)

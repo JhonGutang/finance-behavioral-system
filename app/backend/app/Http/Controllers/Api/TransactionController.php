@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\TransactionService;
 use App\Services\AnalyticsService;
+use App\Services\CsvImportService;
+use App\Services\TransactionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -13,7 +14,8 @@ class TransactionController extends Controller
 {
     public function __construct(
         private TransactionService $transactionService,
-        private AnalyticsService $analyticsService
+        private AnalyticsService $analyticsService,
+        private CsvImportService $csvImportService
     ) {}
 
     /**
@@ -22,24 +24,28 @@ class TransactionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-        $type = $request->query('type');
-        $categoryId = $request->query('category_id');
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
 
-        if ($startDate && $endDate) {
-            $transactions = $this->transactionService->getTransactionsByDateRange($startDate, $endDate, $userId);
-        } elseif ($categoryId) {
-            $transactions = $this->transactionService->getTransactionsByCategory($categoryId, $userId);
-        } elseif ($type) {
-            $transactions = $this->transactionService->getTransactionsByType($type, $userId);
-        } else {
-            $transactions = $this->transactionService->getAllTransactions($userId);
-        }
+        $filters = [
+            'type' => $request->query('type'),
+            'category_id' => $request->query('category_id'),
+            'start_date' => $request->query('start_date'),
+            'end_date' => $request->query('end_date'),
+            'min_amount' => $request->query('min_amount'),
+            'max_amount' => $request->query('max_amount'),
+        ];
+
+        $perPage = $request->query('per_page', 10);
+        $transactions = $this->transactionService->getFilteredPaginated($userId, $filters, (int) $perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $transactions,
+            'data' => $transactions->items(),
+            'meta' => [
+                'current_page' => $transactions->currentPage(),
+                'last_page' => $transactions->lastPage(),
+                'per_page' => $transactions->perPage(),
+                'total' => $transactions->total(),
+            ],
         ]);
     }
 
@@ -72,7 +78,7 @@ class TransactionController extends Controller
     {
         $transaction = $this->transactionService->getTransactionById($id, $request->user()->id);
 
-        if (!$transaction) {
+        if (! $transaction) {
             return response()->json([
                 'success' => false,
                 'message' => 'Transaction not found',
@@ -94,7 +100,7 @@ class TransactionController extends Controller
             $userId = $request->user()->id;
             $updated = $this->transactionService->updateTransaction($id, $userId, $request->all());
 
-            if (!$updated) {
+            if (! $updated) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Transaction not found',
@@ -123,7 +129,7 @@ class TransactionController extends Controller
         $userId = $request->user()->id;
         $deleted = $this->transactionService->deleteTransaction($id, $userId);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json([
                 'success' => false,
                 'message' => 'Transaction not found',
@@ -192,6 +198,43 @@ class TransactionController extends Controller
         return response()->json([
             'success' => true,
             'data' => $data,
+        ]);
+    }
+
+    /**
+     * Preview CSV import data.
+     */
+    public function importPreview(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        $preview = $this->csvImportService->getPreview($request->file('file'), $request->user()->id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $preview,
+        ]);
+    }
+
+    /**
+     * Confirm CSV import.
+     */
+    public function importConfirm(Request $request): JsonResponse
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.skip' => 'boolean',
+            'items.*.data' => 'required|array',
+        ]);
+
+        $result = $this->csvImportService->confirmImport($request->input('items'), $request->user()->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Imported {$result['imported']} transactions, skipped {$result['skipped']}.",
+            'data' => $result,
         ]);
     }
 }

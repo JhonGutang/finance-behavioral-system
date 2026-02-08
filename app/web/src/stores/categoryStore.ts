@@ -82,6 +82,8 @@ export const useCategoryStore = defineStore('category', () => {
     });
   }
 
+  const isCategoriesFetched = computed(() => !!categoriesQuery.data.value);
+
   return {
     // Data
     categories,
@@ -89,6 +91,7 @@ export const useCategoryStore = defineStore('category', () => {
     expenseCategories,
     loading,
     error,
+    isCategoriesFetched,
     
     // Actions
     fetchCategories,

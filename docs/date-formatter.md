@@ -1,3 +1,5 @@
+
+> **Last Updated:** 2026-02-05
 # Date Formatter Utility
 
 ## Overview

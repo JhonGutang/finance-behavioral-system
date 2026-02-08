@@ -1,3 +1,5 @@
+
+> **Last Updated:** 2026-02-05
 # System Overview: Behavioral Insights & Rule Engine
 
 This document provides a technical overview of how Spendlytic processes transaction data into actionable behavioral insights.

@@ -8,8 +8,11 @@ use Carbon\Carbon;
 class RuleEngineService
 {
     private const CATEGORY_OVERSPEND_THRESHOLD = 0.25; // 25%
+
     private const WEEKLY_SPIKE_THRESHOLD = 0.20;       // 20%
+
     private const SMALL_PURCHASE_AMOUNT_LIMIT = 10.00;
+
     private const SMALL_PURCHASE_COUNT_THRESHOLD = 10;
 
     public function __construct(
@@ -28,17 +31,17 @@ class RuleEngineService
 
         $progress = $this->userProgressRepository->getByWeek($userId, $weekStart);
 
-        if (!$progress) {
+        if (! $progress) {
             return true; // No previous evaluation for this week
         }
 
         $lastTransactionUpdate = $this->transactionRepository->getLastUpdateTimestamp(
-            $userId, 
-            $weekStart, 
+            $userId,
+            $weekStart,
             $weekEnd
         );
 
-        if (!$lastTransactionUpdate) {
+        if (! $lastTransactionUpdate) {
             return false; // No transactions, no need to re-evaluate if we already have a progress record (though unlikely)
         }
 
@@ -52,24 +55,24 @@ class RuleEngineService
     public function evaluateRules(int $userId, ?Carbon $targetDate = null): array
     {
         $targetDate = $targetDate ?? Carbon::today();
-        
+
         // Define weeks (Monday to Sunday)
         $currentWeekStart = $targetDate->clone()->startOfWeek(Carbon::MONDAY)->startOfDay();
         $currentWeekEnd = $targetDate->clone()->endOfWeek(Carbon::SUNDAY)->endOfDay();
-        
+
         $previousWeekStart = $currentWeekStart->clone()->subWeek();
         $previousWeekEnd = $currentWeekEnd->clone()->subWeek();
 
         // Get summaries
         $currentSummary = $this->transactionRepository->getWeeklySummary(
-            $userId, 
-            $currentWeekStart->toDateString(), 
+            $userId,
+            $currentWeekStart->toDateString(),
             $currentWeekEnd->toDateString()
         );
-        
+
         $previousSummary = $this->transactionRepository->getWeeklySummary(
-            $userId, 
-            $previousWeekStart->toDateString(), 
+            $userId,
+            $previousWeekStart->toDateString(),
             $previousWeekEnd->toDateString()
         );
 
@@ -98,24 +101,26 @@ class RuleEngineService
                 'previous' => [
                     'start' => $previousWeekStart->toDateString(),
                     'end' => $previousWeekEnd->toDateString(),
-                ]
+                ],
             ],
-            'triggered_rules' => array_filter($results, fn($r) => $r['triggered'])
+            'triggered_rules' => array_filter($results, fn ($r) => $r['triggered']),
         ];
     }
 
     private function checkCategoryOverspend(array $current, array $previous): array
     {
         $triggers = [];
-        
+
         foreach ($current['category_totals'] as $category => $currentAmount) {
             $previousAmount = (float) ($previous['category_totals'][$category] ?? 0);
-            
+
             // Skip if no previous spending (Edge case: avoid new category alerts)
-            if ($previousAmount <= 0) continue;
-            
+            if ($previousAmount <= 0) {
+                continue;
+            }
+
             $increase = ($currentAmount - $previousAmount) / $previousAmount;
-            
+
             if ($increase > self::CATEGORY_OVERSPEND_THRESHOLD) {
                 $triggers[] = [
                     'rule_id' => 'category_overspend',
@@ -125,12 +130,12 @@ class RuleEngineService
                         'current_week_amount' => (float) $currentAmount,
                         'previous_week_amount' => (float) $previousAmount,
                         'increase_percentage' => (float) round($increase * 100, 2),
-                        'threshold' => (float) (self::CATEGORY_OVERSPEND_THRESHOLD * 100)
-                    ]
+                        'threshold' => (float) (self::CATEGORY_OVERSPEND_THRESHOLD * 100),
+                    ],
                 ];
             }
         }
-        
+
         return $triggers;
     }
 
@@ -153,8 +158,8 @@ class RuleEngineService
                 'current_week_total' => $currentTotal,
                 'previous_week_total' => $previousTotal,
                 'increase_percentage' => (float) round($increase * 100, 2),
-                'threshold' => (float) (self::WEEKLY_SPIKE_THRESHOLD * 100)
-            ]
+                'threshold' => (float) (self::WEEKLY_SPIKE_THRESHOLD * 100),
+            ],
         ];
     }
 
@@ -171,8 +176,8 @@ class RuleEngineService
                 'total_amount' => (float) $current['small_transaction_total'],
                 'average_amount' => $count > 0 ? (float) round($current['small_transaction_total'] / $count, 2) : 0.0,
                 'count_threshold' => (int) self::SMALL_PURCHASE_COUNT_THRESHOLD,
-                'amount_limit' => (float) self::SMALL_PURCHASE_AMOUNT_LIMIT
-            ]
+                'amount_limit' => (float) self::SMALL_PURCHASE_AMOUNT_LIMIT,
+            ],
         ];
     }
 }

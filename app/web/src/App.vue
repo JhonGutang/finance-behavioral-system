@@ -52,7 +52,10 @@ const closeMobileDrawer = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex">
+  <div class="min-h-screen bg-[#FDFCF8] flex relative isolate">
+    <!-- Global Atmosphere (Noise) -->
+    <div class="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply -z-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+
     <!-- Desktop Sidebar - Fixed, sits beside the entire app (hidden on public pages) -->
     <div v-if="!isMobile && showAuthLayout" class="flex-shrink-0 fixed left-0 top-0 h-screen z-40">
       <AppSidebar
@@ -63,7 +66,7 @@ const closeMobileDrawer = () => {
 
     <!-- Mobile Drawer (hidden on public pages) -->
     <Sheet v-if="showAuthLayout" v-model:open="isMobileDrawerOpen">
-      <SheetContent side="left" class="p-0 w-60">
+      <SheetContent side="left" class="p-0 w-72 border-0">
         <SheetHeader class="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>
         </SheetHeader>
@@ -77,14 +80,14 @@ const closeMobileDrawer = () => {
 
     <!-- Main App Container (Header + Content) - Offset by sidebar width -->
     <div 
-      class="flex-1 flex flex-col min-w-0 transition-all duration-300"
-      :style="{ marginLeft: !showAuthLayout ? '0' : (isMobile ? '0' : (isSidebarCollapsed ? '64px' : '240px')) }"
+      class="flex-1 flex flex-col min-w-0 transition-[margin-left] duration-400 ease-in-out"
+      :style="{ marginLeft: !showAuthLayout ? '0' : (isMobile ? '0' : (isSidebarCollapsed ? '80px' : '288px')) }"
     >
       <!-- Mobile: Fixed Menu Button (hidden on public pages) -->
       <button
         v-if="isMobile && showAuthLayout"
         @click="toggleSidebar"
-        class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
+        class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-emerald-900 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-emerald-800 transition-all hover:scale-105 active:scale-95"
         aria-label="Open menu"
       >
         <Menu class="w-6 h-6" />
@@ -98,7 +101,7 @@ const closeMobileDrawer = () => {
 
       <!-- Main Content -->
       <main class="flex-1 overflow-auto">
-        <div :class="!showAuthLayout ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'">
+        <div :class="!showAuthLayout ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8'">
           <RouterView />
         </div>
       </main>
@@ -107,9 +110,8 @@ const closeMobileDrawer = () => {
 </template>
 
 <style scoped>
-/* Mobile Menu Button icons */
-.bg-primary {
-  --primary: 221.2 83.2% 53.3%;
+a {
+  @apply text-slate-600 hover:text-slate-900;
 }
 </style>
 

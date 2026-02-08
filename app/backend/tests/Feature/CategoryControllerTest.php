@@ -10,14 +10,14 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->user = User::factory()->create();
     Sanctum::actingAs($this->user);
-    
+
     Category::create(['name' => 'Salary', 'type' => 'income', 'is_default' => true, 'user_id' => $this->user->id]);
     Category::create(['name' => 'Food', 'type' => 'expense', 'is_default' => true, 'user_id' => $this->user->id]);
 });
 
 test('can list all categories', function () {
     $response = $this->getJson('/api/categories');
-    
+
     $response->assertStatus(200)
         ->assertJson(['success' => true])
         ->assertJsonCount(2, 'data');
@@ -25,16 +25,16 @@ test('can list all categories', function () {
 
 test('can filter categories by type', function () {
     $response = $this->getJson('/api/categories?type=income');
-    
+
     $response->assertStatus(200)
         ->assertJsonCount(1, 'data');
 });
 
 test('can get single category', function () {
     $category = Category::first();
-    
+
     $response = $this->getJson("/api/categories/{$category->id}");
-    
+
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
@@ -47,7 +47,7 @@ test('can get single category', function () {
 
 test('returns 404 for non-existent category', function () {
     $response = $this->getJson('/api/categories/999');
-    
+
     $response->assertStatus(404)
         ->assertJson(['success' => false]);
 });
@@ -57,9 +57,9 @@ test('can create category', function () {
         'name' => 'Entertainment',
         'type' => 'expense',
     ];
-    
+
     $response = $this->postJson('/api/categories', $data);
-    
+
     $response->assertStatus(201)
         ->assertJson([
             'success' => true,
@@ -68,13 +68,13 @@ test('can create category', function () {
                 'type' => 'expense',
             ],
         ]);
-    
+
     expect(Category::count())->toBe(3);
 });
 
 test('validates category creation', function () {
     $response = $this->postJson('/api/categories', []);
-    
+
     $response->assertStatus(422)
         ->assertJson(['success' => false])
         ->assertJsonValidationErrors(['name', 'type']);
@@ -82,12 +82,12 @@ test('validates category creation', function () {
 
 test('can update category', function () {
     $category = Category::first();
-    
+
     $response = $this->putJson("/api/categories/{$category->id}", [
         'name' => 'Updated Name',
         'type' => $category->type,
     ]);
-    
+
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
@@ -97,12 +97,12 @@ test('can update category', function () {
 
 test('can delete category without transactions', function () {
     $category = Category::first();
-    
+
     $response = $this->deleteJson("/api/categories/{$category->id}");
-    
+
     $response->assertStatus(200)
         ->assertJson(['success' => true]);
-    
+
     expect(Category::count())->toBe(1);
 });
 
@@ -113,9 +113,9 @@ test('cannot delete category with transactions', function () {
         'amount' => 100,
         'date' => now(),
     ]);
-    
+
     $response = $this->deleteJson("/api/categories/{$category->id}");
-    
+
     $response->assertStatus(400)
         ->assertJson(['success' => false]);
 });

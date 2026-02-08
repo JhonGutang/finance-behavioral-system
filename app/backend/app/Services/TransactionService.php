@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Repositories\TransactionRepository;
 use App\Models\Transaction;
+use App\Repositories\TransactionRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -14,12 +14,17 @@ class TransactionService
         private TransactionRepository $transactionRepository
     ) {}
 
-    /**
-     * Get all transactions.
-     */
     public function getAllTransactions(int $userId): Collection
     {
         return $this->transactionRepository->getAll($userId);
+    }
+
+    /**
+     * Get filtered and paginated transactions.
+     */
+    public function getFilteredPaginated(int $userId, array $filters, int $perPage = 10)
+    {
+        return $this->transactionRepository->getFilteredPaginated($userId, $filters, $perPage);
     }
 
     /**
@@ -112,7 +117,7 @@ class TransactionService
     private function validateTransaction(array $data, bool $isUpdate = false): void
     {
         $requiredRule = $isUpdate ? ['sometimes', 'required'] : ['required'];
-        
+
         $rules = [
             'type' => array_merge($requiredRule, ['in:income,expense']),
             'amount' => array_merge($requiredRule, ['numeric', 'min:0.01', 'max:9999999.99']),

@@ -2,7 +2,8 @@
 
 > **Document Type:** Technical Specification  
 > **Phase:** MVP - Adaptive Feedback Engine  
-> **Last Updated:** 2026-01-20
+> **Status:** Implemented  
+> **Last Updated:** 2026-02-07
 
 ---
 
@@ -25,7 +26,7 @@ The Finance Habit Tracker is the **adaptive feedback component** of the Finance 
 ### Core Concept
 
 Instead of just showing what happened, the system:
-1. **Detects patterns** using the Rule Engine (see [`rule-engine.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/rule-engine.md))
+1. **Detects patterns** using the Rule Engine (see [`rule-engine.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/rule-engine.md))
 2. **Generates feedback** using structured templates
 3. **Adapts suggestions** based on user progress over time
 4. **Tracks improvement** to determine feedback level
@@ -52,7 +53,7 @@ Select Appropriate Feedback Level
     ↓
 Fill Template Placeholders
     ↓
-Generate Feedback Message
+Generate Feedback Message (Currency formatted in ₱)
     ↓
 Store Feedback History
     ↓
@@ -97,8 +98,8 @@ interface FeedbackTemplate {
   template_id: 'category_overspend_basic',
   rule_id: 'category_overspend',
   level: 'basic',
-  explanation: 'You spent ${current_amount} in ${category} this week, which is ${increase_percentage}% higher than last week (${previous_amount}).',
-  suggestion: 'Try limiting ${category} spending to ${target_amount} next week.',
+  explanation: 'You spent ₱${current_amount} in ${category} this week, which is ${increase_percentage}% higher than last week (₱${previous_amount}).',
+  suggestion: 'Try limiting ${category} spending to ₱${target_amount} next week.',
   placeholders: ['current_amount', 'category', 'increase_percentage', 'previous_amount', 'target_amount'],
   priority: 8
 }
@@ -110,8 +111,8 @@ interface FeedbackTemplate {
   template_id: 'category_overspend_advanced',
   rule_id: 'category_overspend',
   level: 'advanced',
-  explanation: 'Your ${category} spending increased by ${increase_percentage}% (${current_amount} vs ${previous_amount}). Over the past 4 weeks, your average is ${four_week_average}.',
-  suggestion: 'Consider setting a weekly ${category} budget of ${recommended_budget} based on your 4-week trend. Track daily to stay aware.',
+  explanation: 'Your ${category} spending increased by ${increase_percentage}% (₱${current_amount} vs ₱${previous_amount}). Over the past 4 weeks, your average is ₱${four_week_average}.',
+  suggestion: 'Consider setting a weekly ${category} budget of ₱${recommended_budget} based on your 4-week trend. Track daily to stay aware.',
   placeholders: ['category', 'increase_percentage', 'current_amount', 'previous_amount', 'four_week_average', 'recommended_budget'],
   priority: 8
 }
@@ -127,7 +128,7 @@ interface FeedbackTemplate {
   template_id: 'weekly_spike_basic',
   rule_id: 'weekly_spending_spike',
   level: 'basic',
-  explanation: 'Your total spending this week (${current_total}) is ${increase_percentage}% higher than last week (${previous_total}).',
+  explanation: 'Your total spending this week (₱${current_total}) is ${increase_percentage}% higher than last week (₱${previous_total}).',
   suggestion: 'Review your transactions to identify unexpected expenses. Try to reduce discretionary spending next week.',
   placeholders: ['current_total', 'increase_percentage', 'previous_total'],
   priority: 9
@@ -140,8 +141,8 @@ interface FeedbackTemplate {
   template_id: 'weekly_spike_advanced',
   rule_id: 'weekly_spending_spike',
   level: 'advanced',
-  explanation: 'Weekly spending increased ${increase_percentage}% to ${current_total}. Main contributors: ${top_categories}. Your 4-week average is ${four_week_average}.',
-  suggestion: 'Focus on reducing ${highest_category} by ${reduction_target}. Set daily spending limit of ${daily_limit} to stay on track.',
+  explanation: 'Weekly spending increased ${increase_percentage}% to ₱${current_total}. Main contributors: ${top_categories}. Your 4-week average is ₱${four_week_average}.',
+  suggestion: 'Focus on reducing ${highest_category} by ₱${reduction_target}. Set daily spending limit of ₱${daily_limit} to stay on track.',
   placeholders: ['increase_percentage', 'current_total', 'top_categories', 'four_week_average', 'highest_category', 'reduction_target', 'daily_limit'],
   priority: 9
 }
@@ -157,7 +158,7 @@ interface FeedbackTemplate {
   template_id: 'small_purchases_basic',
   rule_id: 'frequent_small_purchases',
   level: 'basic',
-  explanation: 'You made ${transaction_count} small purchases (under ${amount_threshold}) this week, totaling ${total_amount}.',
+  explanation: 'You made ${transaction_count} small purchases (under ₱${amount_threshold}) this week, totaling ₱${total_amount}.',
   suggestion: 'Small purchases add up quickly. Try consolidating purchases or setting a daily spending limit.',
   placeholders: ['transaction_count', 'amount_threshold', 'total_amount'],
   priority: 6
@@ -170,8 +171,8 @@ interface FeedbackTemplate {
   template_id: 'small_purchases_advanced',
   rule_id: 'frequent_small_purchases',
   level: 'advanced',
-  explanation: '${transaction_count} small purchases totaling ${total_amount} (avg: ${average_amount}). Common times: ${peak_times}. Common merchants: ${top_merchants}.',
-  suggestion: 'Implement a "wait 24 hours" rule for purchases under ${amount_threshold}. Prepare alternatives (e.g., bring coffee from home) to reduce impulse spending.',
+  explanation: '${transaction_count} small purchases totaling ₱${total_amount} (avg: ₱${average_amount}). Common times: ${peak_times}. Common merchants: ${top_merchants}.',
+  suggestion: 'Implement a "wait 24 hours" rule for purchases under ₱${amount_threshold}. Prepare alternatives (e.g., bring coffee from home) to reduce impulse spending.',
   placeholders: ['transaction_count', 'total_amount', 'average_amount', 'peak_times', 'top_merchants', 'amount_threshold'],
   priority: 6
 }
@@ -221,13 +222,13 @@ function selectFeedbackLevel(userProgress: UserProgress): FeedbackLevel {
 - **Condition:** Same rule triggered 2+ weeks in a row
 - **Feedback Level:** Basic
 - **Approach:** Simpler, more actionable suggestions
-- **Example:** "Try limiting Food spending to $200 next week"
+- **Example:** "Try limiting Food spending to ₱200 next week"
 
 #### Improving State
 - **Condition:** Rule did NOT trigger for 2+ weeks in a row (after previously triggering)
 - **Feedback Level:** Advanced
 - **Approach:** More detailed analysis, optimization strategies
-- **Example:** "Your 4-week average is $180. Consider setting a $170 budget to continue improving"
+- **Example:** "Your 4-week average is ₱180. Consider setting a ₱170 budget to continue improving"
 
 #### Stable State
 - **Condition:** Mixed results, no clear pattern
@@ -358,7 +359,7 @@ function fillTemplate(
 function formatValue(value: any, placeholder: string): string {
   // Currency formatting
   if (placeholder.includes('amount') || placeholder.includes('total') || placeholder.includes('budget')) {
-    return `$${value.toFixed(2)}`;
+    return `₱${value.toFixed(2)}`;
   }
   
   // Percentage formatting
@@ -422,14 +423,14 @@ CREATE TABLE user_progress (
 describe('Template Filling', () => {
   test('fills all placeholders correctly', () => {
     const template = {
-      explanation: 'You spent ${amount} in ${category}',
+      explanation: 'You spent ₱${amount} in ${category}',
       placeholders: ['amount', 'category']
     };
     
     const data = { amount: 250.50, category: 'Food' };
     const result = fillTemplate(template, data);
     
-    expect(result.explanation).toBe('You spent $250.50 in Food');
+    expect(result.explanation).toBe('You spent ₱250.50 in Food');
   });
 });
 ```
@@ -484,7 +485,7 @@ Create multi-week scenarios to test adaptive behavior:
 Expand from 2 levels to 3+ levels:
 - **Beginner:** Very simple, one action at a time
 - **Intermediate:** Multiple suggestions, prioritized
-- **Advanced:** Detailed analysis, optimization strategies
+- **Advanced:** Detailed analysis, sophisticated strategies
 - **Expert:** Proactive insights, trend predictions
 
 ### Personalized Templates
@@ -528,5 +529,5 @@ Add feedback for positive behaviors:
 
 ### References
 
-- See [`rule-engine.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/rule-engine.md) for pattern detection rules
-- See [`low-concept.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/low-concept.md) for MVP overview
+- See [`rule-engine.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/rule-engine.md) for pattern detection rules
+- See [`low-concept.md`](file:///c:/Users/jhonb/Documents/Websites/spendlytic/docs/low-concept.md) for MVP overview

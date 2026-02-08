@@ -2,7 +2,7 @@
 
 > **Document Type:** Detailed System Concepts & Design  
 > **Phase:** MVP - Adaptive Feedback Engine  
-> **Last Updated:** 2026-01-20
+> **Last Updated:** 2026-02-07
 
 ---
 
@@ -787,12 +787,12 @@ When implementing future features:
 
 ### References
 
-- See [`AGENTS.MD`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/AGENTS.MD) for development standards and architecture patterns
-- See [`low-concept.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/low-concept.md) for MVP overview
-- See [`features.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/features.md) for current implemented features
-- See [`rule-engine.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/rule-engine.md) for pattern detection rules
-- See [`finance-habit-tracker.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/finance-habit-tracker.md) for adaptive feedback system
-- See [`date-formatter.md`](file:///c:/Users/jhonb/Documents/Websites/finance-behavioral-system/docs/date-formatter.md) for date utility details
+- See [`AGENTS.MD`](../AGENTS.MD) for development standards and architecture patterns
+- See [`low-concept.md`](./low-concept.md) for MVP overview
+- See [`features.md`](./features.md) for current implemented features
+- See [`rule-engine.md`](./rule-engine.md) for pattern detection rules
+- See [`finance-habit-tracker.md`](./finance-habit-tracker.md) for adaptive feedback system
+- See [`date-formatter.md`](./date-formatter.md) for date utility details
 - Laravel Documentation: https://laravel.com/docs
 - Vue 3 Documentation: https://vuejs.org/guide
 - TypeScript Documentation: https://www.typescriptlang.org/docs

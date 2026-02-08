@@ -15,14 +15,14 @@ beforeEach(function () {
 });
 
 test('transaction has correct fillable attributes', function () {
-    $transaction = new Transaction();
-    
+    $transaction = new Transaction;
+
     expect($transaction->getFillable())->toContain('type', 'amount', 'date', 'category_id', 'description');
 });
 
 test('transaction belongs to category', function () {
     $transaction = Transaction::factory()->create(['category_id' => $this->category->id]);
-    
+
     expect($transaction->category)->toBeInstanceOf(Category::class)
         ->and($transaction->category->id)->toBe($this->category->id);
 });
@@ -34,9 +34,9 @@ test('transaction casts amount to decimal', function () {
         'date' => now(),
         'category_id' => $this->category->id,
     ]);
-    
+
     expect($transaction->amount)->toBeString()
-        ->and((float)$transaction->amount)->toBe(150.50);
+        ->and((float) $transaction->amount)->toBe(150.50);
 });
 
 test('transaction casts date correctly', function () {
@@ -46,13 +46,13 @@ test('transaction casts date correctly', function () {
         'date' => '2026-01-21',
         'category_id' => $this->category->id,
     ]);
-    
+
     expect($transaction->date)->toBeInstanceOf(\Illuminate\Support\Carbon::class);
 });
 
 test('can create income transaction', function () {
     $incomeCategory = Category::create(['name' => 'Salary', 'type' => 'income']);
-    
+
     $transaction = Transaction::create([
         'type' => 'income',
         'amount' => 5000,
@@ -60,7 +60,7 @@ test('can create income transaction', function () {
         'category_id' => $incomeCategory->id,
         'description' => 'Monthly salary',
     ]);
-    
+
     expect($transaction->type)->toBe('income')
         ->and($transaction->amount)->toBe('5000.00')
         ->and($transaction->description)->toBe('Monthly salary');
@@ -73,13 +73,13 @@ test('can create expense transaction', function () {
         'date' => now(),
         'category_id' => $this->category->id,
     ]);
-    
+
     expect($transaction->type)->toBe('expense')
-        ->and((float)$transaction->amount)->toBe(150.50);
+        ->and((float) $transaction->amount)->toBe(150.50);
 });
 
 test('transaction requires category', function () {
-    expect(fn() => Transaction::create([
+    expect(fn () => Transaction::create([
         'type' => 'expense',
         'amount' => 100,
         'date' => now(),

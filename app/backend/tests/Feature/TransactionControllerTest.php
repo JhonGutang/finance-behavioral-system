@@ -11,9 +11,9 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->user = User::factory()->create();
     Sanctum::actingAs($this->user);
-    
+
     $this->category = Category::create(['name' => 'Food', 'type' => 'expense', 'user_id' => $this->user->id]);
-    
+
     Transaction::create([
         'type' => 'expense',
         'amount' => 150,
@@ -25,7 +25,7 @@ beforeEach(function () {
 
 test('can list all transactions', function () {
     $response = $this->getJson('/api/transactions');
-    
+
     $response->assertStatus(200)
         ->assertJson(['success' => true])
         ->assertJsonCount(1, 'data');
@@ -33,16 +33,16 @@ test('can list all transactions', function () {
 
 test('can filter transactions by type', function () {
     $response = $this->getJson('/api/transactions?type=expense');
-    
+
     $response->assertStatus(200)
         ->assertJsonCount(1, 'data');
 });
 
 test('can get single transaction', function () {
     $transaction = Transaction::first();
-    
+
     $response = $this->getJson("/api/transactions/{$transaction->id}");
-    
+
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
@@ -61,9 +61,9 @@ test('can create transaction', function () {
         'category_id' => $this->category->id,
         'description' => 'Test transaction',
     ];
-    
+
     $response = $this->postJson('/api/transactions', $data);
-    
+
     $response->assertStatus(201)
         ->assertJson([
             'success' => true,
@@ -72,13 +72,13 @@ test('can create transaction', function () {
                 'description' => 'Test transaction',
             ],
         ]);
-    
+
     expect(Transaction::count())->toBe(2);
 });
 
 test('validates transaction creation', function () {
     $response = $this->postJson('/api/transactions', []);
-    
+
     $response->assertStatus(422)
         ->assertJson(['success' => false])
         ->assertJsonValidationErrors(['type', 'amount', 'date', 'category_id']);
@@ -91,7 +91,7 @@ test('validates amount must be positive', function () {
         'date' => now()->format('Y-m-d'),
         'category_id' => $this->category->id,
     ]);
-    
+
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['amount']);
 });
@@ -103,21 +103,21 @@ test('validates date cannot be in future', function () {
         'date' => now()->addDay()->format('Y-m-d'),
         'category_id' => $this->category->id,
     ]);
-    
+
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['date']);
 });
 
 test('can update transaction', function () {
     $transaction = Transaction::first();
-    
+
     $response = $this->putJson("/api/transactions/{$transaction->id}", [
         'type' => 'expense',
         'amount' => 200,
         'date' => $transaction->date->format('Y-m-d'),
         'category_id' => $this->category->id,
     ]);
-    
+
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
@@ -127,18 +127,18 @@ test('can update transaction', function () {
 
 test('can delete transaction', function () {
     $transaction = Transaction::first();
-    
+
     $response = $this->deleteJson("/api/transactions/{$transaction->id}");
-    
+
     $response->assertStatus(200)
         ->assertJson(['success' => true]);
-    
+
     expect(Transaction::count())->toBe(0);
 });
 
 test('can get summary', function () {
     $response = $this->getJson('/api/transactions/summary');
-    
+
     $response->assertStatus(200)
         ->assertJson([
             'success' => true,
@@ -154,7 +154,7 @@ test('can get summary', function () {
 describe('analytics endpoints', function () {
     test('can get daily analytics', function () {
         $response = $this->getJson('/api/transactions/analytics/daily');
-        
+
         $response->assertStatus(200)
             ->assertJson(['success' => true])
             ->assertJsonStructure([
@@ -165,7 +165,7 @@ describe('analytics endpoints', function () {
                     'expenses',
                 ],
             ]);
-        
+
         $data = $response->json('data');
         expect($data['labels'])->toHaveCount(30)
             ->and($data['income'])->toHaveCount(30)
@@ -174,9 +174,9 @@ describe('analytics endpoints', function () {
 
     test('can get daily analytics with custom days parameter', function () {
         $response = $this->getJson('/api/transactions/analytics/daily?days=7');
-        
+
         $response->assertStatus(200);
-        
+
         $data = $response->json('data');
         expect($data['labels'])->toHaveCount(7)
             ->and($data['income'])->toHaveCount(7)
@@ -185,7 +185,7 @@ describe('analytics endpoints', function () {
 
     test('can get monthly analytics', function () {
         $response = $this->getJson('/api/transactions/analytics/monthly');
-        
+
         $response->assertStatus(200)
             ->assertJson(['success' => true])
             ->assertJsonStructure([
@@ -196,7 +196,7 @@ describe('analytics endpoints', function () {
                     'expenses',
                 ],
             ]);
-        
+
         $data = $response->json('data');
         expect($data['labels'])->toHaveCount(12)
             ->and($data['income'])->toHaveCount(12)
@@ -205,9 +205,9 @@ describe('analytics endpoints', function () {
 
     test('can get monthly analytics with custom months parameter', function () {
         $response = $this->getJson('/api/transactions/analytics/monthly?months=6');
-        
+
         $response->assertStatus(200);
-        
+
         $data = $response->json('data');
         expect($data['labels'])->toHaveCount(6)
             ->and($data['income'])->toHaveCount(6)
@@ -216,7 +216,7 @@ describe('analytics endpoints', function () {
 
     test('can get yearly analytics', function () {
         $response = $this->getJson('/api/transactions/analytics/yearly');
-        
+
         $response->assertStatus(200)
             ->assertJson(['success' => true])
             ->assertJsonStructure([
@@ -231,9 +231,9 @@ describe('analytics endpoints', function () {
 
     test('analytics endpoints return correct data types', function () {
         $response = $this->getJson('/api/transactions/analytics/daily');
-        
+
         $data = $response->json('data');
-        
+
         expect($data['labels'])->toBeArray()
             ->and($data['income'])->toBeArray()
             ->and($data['expenses'])->toBeArray()

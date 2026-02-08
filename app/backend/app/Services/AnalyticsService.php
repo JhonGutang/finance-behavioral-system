@@ -12,7 +12,7 @@ class AnalyticsService
         private TransactionRepository $transactionRepository
     ) {}
 
-    public function getDailyFlow(int $days = 30, int $userId): array
+    public function getDailyFlow(int $days, int $userId): array
     {
         $endDate = Carbon::today();
         $startDate = Carbon::today()->subDays($days - 1);
@@ -47,7 +47,7 @@ class AnalyticsService
             if ($dayIndex >= 0 && $dayIndex < $days) {
                 $incomeSum = $dateTransactions->where('type', 'income')->sum('amount');
                 $expenseSum = $dateTransactions->where('type', 'expense')->sum('amount');
-                
+
                 if ($incomeSum > 0) {
                     $income[$dayIndex] = (float) $incomeSum;
                 }
@@ -64,7 +64,7 @@ class AnalyticsService
         ];
     }
 
-    public function getMonthlyFlow(int $months = 12, int $userId): array
+    public function getMonthlyFlow(int $months, int $userId): array
     {
         $endDate = Carbon::today()->endOfMonth();
         $startDate = Carbon::today()->subMonths($months - 1)->startOfMonth();
@@ -90,17 +90,18 @@ class AnalyticsService
         // Group transactions by year-month and type
         $grouped = $transactions->groupBy(function ($transaction) {
             $date = Carbon::parse($transaction->date);
+
             return $date->format('Y-m');
         });
 
         foreach ($grouped as $yearMonth => $monthTransactions) {
-            $transactionDate = Carbon::parse($yearMonth . '-01');
+            $transactionDate = Carbon::parse($yearMonth.'-01');
             $monthIndex = $startDate->diffInMonths($transactionDate);
 
             if ($monthIndex >= 0 && $monthIndex < $months) {
                 $incomeSum = $monthTransactions->where('type', 'income')->sum('amount');
                 $expenseSum = $monthTransactions->where('type', 'expense')->sum('amount');
-                
+
                 if ($incomeSum > 0) {
                     $income[$monthIndex] = (float) $incomeSum;
                 }
@@ -119,7 +120,7 @@ class AnalyticsService
 
     /**
      * Get yearly flow data for all available years.
-     * 
+     *
      * @return array Array with labels, income, and expenses
      */
     public function getYearlyFlow(int $userId): array
@@ -150,11 +151,11 @@ class AnalyticsService
 
         foreach ($years as $year) {
             $labels[] = (string) $year;
-            
+
             $yearTransactions = $grouped[$year];
             $incomeSum = $yearTransactions->where('type', 'income')->sum('amount');
             $expenseSum = $yearTransactions->where('type', 'expense')->sum('amount');
-            
+
             $income[] = (float) $incomeSum;
             $expenses[] = (float) $expenseSum;
         }

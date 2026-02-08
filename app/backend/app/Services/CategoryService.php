@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Repositories\CategoryRepository;
 use App\Models\Category;
+use App\Repositories\CategoryRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -88,9 +88,9 @@ class CategoryService
     {
         $nameRule = $id ? ['sometimes', 'required'] : ['required'];
         $typeRule = $id ? ['sometimes', 'required'] : ['required'];
-        
+
         $userId = $data['user_id'] ?? null;
-        
+
         $rules = [
             'name' => array_merge($nameRule, [
                 'string',

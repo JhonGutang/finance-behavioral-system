@@ -52,26 +52,26 @@ const chartData = computed(() => {
       {
         label: 'Income',
         data: props.data.income,
-        borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        borderColor: 'rgb(4, 120, 87)', // Emerald 700
+        backgroundColor: 'rgba(4, 120, 87, 0.1)',
         fill: true,
         tension: 0.4,
         pointRadius: 4,
         pointHoverRadius: 6,
-        pointBackgroundColor: 'rgb(34, 197, 94)',
+        pointBackgroundColor: 'rgb(4, 120, 87)',
         pointBorderColor: '#fff',
         pointBorderWidth: 2,
       },
       {
         label: 'Expenses',
         data: props.data.expenses,
-        borderColor: 'rgb(239, 68, 68)',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        borderColor: 'rgb(190, 18, 60)', // Rose 700
+        backgroundColor: 'rgba(190, 18, 60, 0.1)',
         fill: true,
         tension: 0.4,
         pointRadius: 4,
         pointHoverRadius: 6,
-        pointBackgroundColor: 'rgb(239, 68, 68)',
+        pointBackgroundColor: 'rgb(190, 18, 60)',
         pointBorderColor: '#fff',
         pointBorderWidth: 2,
       },
@@ -112,7 +112,7 @@ const chartOptions = computed(() => ({
         label: (context: any) => {
           const label = context.dataset.label || '';
           const value = context.parsed.y;
-          return `${label}: $${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          return `${label}: ₱${value.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         },
       },
     },
@@ -138,7 +138,7 @@ const chartOptions = computed(() => ({
           size: 11,
         },
         callback: (value: any) => {
-          return '$' + value.toLocaleString('en-US');
+          return '₱' + value.toLocaleString('en-PH');
         },
       },
     },

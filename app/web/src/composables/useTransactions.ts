@@ -13,9 +13,13 @@ export const transactionKeys = {
   lists: () => [...transactionKeys.all, 'list'] as const,
   list: (params?: {
     type?: 'income' | 'expense';
-    category_id?: number;
+    category_id?: number | string | null;
     start_date?: string;
     end_date?: string;
+    min_amount?: number;
+    max_amount?: number;
+    page?: number;
+    per_page?: number;
   }) => [...transactionKeys.lists(), params] as const,
   details: () => [...transactionKeys.all, 'detail'] as const,
   detail: (id: number) => [...transactionKeys.details(), id] as const,
@@ -25,15 +29,19 @@ export const transactionKeys = {
 /**
  * Fetch all transactions with optional filters
  * 
- * @param params - Optional filters (type, category_id, start_date, end_date)
+ * @param params - Optional filters (type, category_id, start_date, end_date, amounts, pagination)
  * @returns Query result with transactions data, loading state, and error
  */
 export function useTransactions(
   params?: MaybeRef<{
     type?: 'income' | 'expense';
-    category_id?: number;
+    category_id?: number | string | null;
     start_date?: string;
     end_date?: string;
+    min_amount?: number;
+    max_amount?: number;
+    page?: number;
+    per_page?: number;
   } | undefined>
 ) {
   return useQuery({

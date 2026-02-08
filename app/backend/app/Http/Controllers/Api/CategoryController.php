@@ -55,7 +55,7 @@ class CategoryController extends Controller
     {
         $category = $this->categoryService->getCategoryById($id, $request->user()->id);
 
-        if (!$category) {
+        if (! $category) {
             return response()->json([
                 'success' => false,
                 'message' => 'Category not found',
@@ -77,7 +77,7 @@ class CategoryController extends Controller
             $userId = $request->user()->id;
             $updated = $this->categoryService->updateCategory($id, $userId, $request->all());
 
-            if (!$updated) {
+            if (! $updated) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Category not found',
@@ -106,7 +106,7 @@ class CategoryController extends Controller
         try {
             $deleted = $this->categoryService->deleteCategory($id, $request->user()->id);
 
-            if (!$deleted) {
+            if (! $deleted) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Category not found',

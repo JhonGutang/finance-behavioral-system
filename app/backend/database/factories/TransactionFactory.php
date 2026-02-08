@@ -26,11 +26,11 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         $type = $this->faker->randomElement(['income', 'expense']);
-        
+
         // Get or create a category of the matching type
         $category = Category::where('type', $type)->first();
-        
-        if (!$category) {
+
+        if (! $category) {
             $category = Category::create([
                 'name' => $type === 'income' ? 'Salary' : 'General',
                 'type' => $type,
@@ -53,8 +53,8 @@ class TransactionFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $category = Category::where('type', 'income')->first();
-            
-            if (!$category) {
+
+            if (! $category) {
                 $category = Category::create([
                     'name' => 'Salary',
                     'type' => 'income',
@@ -75,8 +75,8 @@ class TransactionFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $category = Category::where('type', 'expense')->first();
-            
-            if (!$category) {
+
+            if (! $category) {
                 $category = Category::create([
                     'name' => 'General',
                     'type' => 'expense',

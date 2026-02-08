@@ -23,23 +23,23 @@ class RuleEngineController extends Controller
     public function evaluate(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-        $targetDate = $request->query('date') 
-            ? Carbon::parse($request->query('date')) 
+        $targetDate = $request->query('date')
+            ? Carbon::parse($request->query('date'))
             : Carbon::today();
 
         $weekStart = $targetDate->clone()->startOfWeek(Carbon::MONDAY)->toDateString();
 
         // Check if we should re-evaluate
-        if (!$this->ruleEngineService->shouldReevaluate($userId, $targetDate)) {
+        if (! $this->ruleEngineService->shouldReevaluate($userId, $targetDate)) {
             $existingProgress = $this->userProgressRepository->getByWeek($userId, $weekStart);
             $existingFeedback = $this->feedbackHistoryRepository->getByUserAndDate($userId, $weekStart);
 
             // Reconstruct evaluation result from feedback history to maintain data structure
-            $evaluationRules = $existingFeedback->map(function($feedback) {
+            $evaluationRules = $existingFeedback->map(function ($feedback) {
                 return [
                     'rule_id' => $feedback->rule_id,
                     'triggered' => true,
-                    'data' => $feedback->data
+                    'data' => $feedback->data,
                 ];
             })->values()->toArray();
 
@@ -53,10 +53,10 @@ class RuleEngineController extends Controller
                             'current' => [
                                 'start' => $weekStart,
                                 'end' => $targetDate->clone()->endOfWeek(Carbon::SUNDAY)->toDateString(),
-                            ]
+                            ],
                         ],
                         'triggered_rules' => $evaluationRules,
-                        'cached' => true
+                        'cached' => true,
                     ],
                     'feedback' => $existingFeedback,
                 ],
@@ -64,7 +64,7 @@ class RuleEngineController extends Controller
         }
 
         $evaluation = $this->ruleEngineService->evaluateRules($userId, $targetDate);
-        
+
         // Generate adaptive feedback based on evaluation
         $feedback = $this->feedbackEngineService->processRuleResults($evaluation);
 

@@ -21,11 +21,18 @@ class FeedbackController extends Controller
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-        $feedback = $this->feedbackHistoryRepository->getAll($userId);
+        $perPage = $request->query('per_page', 10);
+        $feedback = $this->feedbackHistoryRepository->getPaginated($userId, (int) $perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $feedback,
+            'data' => $feedback->items(),
+            'meta' => [
+                'current_page' => $feedback->currentPage(),
+                'last_page' => $feedback->lastPage(),
+                'per_page' => $feedback->perPage(),
+                'total' => $feedback->total(),
+            ],
         ]);
     }
 
