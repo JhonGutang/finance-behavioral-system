@@ -1,0 +1,45 @@
+{
+	"folders": [
+		{
+			"name": "Spendlytic (Root)",
+			"path": "."
+		},
+		{
+			"name": "Backend (Laravel)",
+			"path": "app/backend"
+		},
+		{
+			"name": "Frontend (Vue)",
+			"path": "app/web"
+		},
+		{
+			"name": "Project Docs",
+			"path": "docs"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/vendor": true,
+			"**/storage": true,
+			"**/.git": true
+		},
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"[php]": {
+			"editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+		},
+		"typescript.tsdk": "app/web/node_modules/typescript/lib",
+		"volar.lowResIsolation": true
+	},
+	"extensions": {
+		"recommendations": [
+			"vue.volar",
+			"bmewburn.intelephense",
+			"amiralizadeh9480.laravel-extra-intellisense",
+			"bradlc.vscode-tailwindcss",
+			"esbenp.prettier-vscode",
+			"dbaeumer.vscode-eslint"
+		]
+	}
+}
