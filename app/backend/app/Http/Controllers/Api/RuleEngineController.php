@@ -7,14 +7,17 @@ use App\Services\RuleEngineService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Repositories\UserProgressRepository;
+use App\Repositories\FeedbackHistoryRepository;
+use App\Services\FeedbackEngineService;
 
 class RuleEngineController extends Controller
 {
     public function __construct(
         private RuleEngineService $ruleEngineService,
-        private \App\Services\FeedbackEngineService $feedbackEngineService,
-        private \App\Repositories\UserProgressRepository $userProgressRepository,
-        private \App\Repositories\FeedbackHistoryRepository $feedbackHistoryRepository
+        private FeedbackEngineService $feedbackEngineService,
+        private UserProgressRepository $userProgressRepository,
+        private FeedbackHistoryRepository $feedbackHistoryRepository
     ) {}
 
     /**
@@ -29,11 +32,8 @@ class RuleEngineController extends Controller
 
         $weekStart = $targetDate->clone()->startOfWeek(Carbon::MONDAY)->toDateString();
 
-        // Check if we should re-evaluate
         if (! $this->ruleEngineService->shouldReevaluate($userId, $targetDate)) {
-            $existingProgress = $this->userProgressRepository->getByWeek($userId, $weekStart);
             $existingFeedback = $this->feedbackHistoryRepository->getByUserAndDate($userId, $weekStart);
-
             // Reconstruct evaluation result from feedback history to maintain data structure
             $evaluationRules = $existingFeedback->map(function ($feedback) {
                 return [

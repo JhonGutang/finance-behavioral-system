@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\TransactionRepository;
+use App\Repositories\UserProgressRepository;
 use Carbon\Carbon;
 
 class RuleEngineService
@@ -17,7 +18,7 @@ class RuleEngineService
 
     public function __construct(
         private TransactionRepository $transactionRepository,
-        private \App\Repositories\UserProgressRepository $userProgressRepository
+        private UserProgressRepository $userProgressRepository
     ) {}
 
     /**
