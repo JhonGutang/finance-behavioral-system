@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\FeedbackHistoryRepository;
+use App\Repositories\UserProgressRepository;
+use App\Services\FeedbackEngineService;
 use App\Services\RuleEngineService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -10,12 +13,25 @@ use Illuminate\Http\Request;
 
 class RuleEngineController extends Controller
 {
+    protected RuleEngineService $ruleEngineService;
+
+    protected FeedbackEngineService $feedbackEngineService;
+
+    protected UserProgressRepository $userProgressRepository;
+
+    protected FeedbackHistoryRepository $feedbackHistoryRepository;
+
     public function __construct(
-        private RuleEngineService $ruleEngineService,
-        private \App\Services\FeedbackEngineService $feedbackEngineService,
-        private \App\Repositories\UserProgressRepository $userProgressRepository,
-        private \App\Repositories\FeedbackHistoryRepository $feedbackHistoryRepository
-    ) {}
+        RuleEngineService $ruleEngineService,
+        FeedbackEngineService $feedbackEngineService,
+        UserProgressRepository $userProgressRepository,
+        FeedbackHistoryRepository $feedbackHistoryRepository
+    ) {
+        $this->ruleEngineService = $ruleEngineService;
+        $this->feedbackEngineService = $feedbackEngineService;
+        $this->userProgressRepository = $userProgressRepository;
+        $this->feedbackHistoryRepository = $feedbackHistoryRepository;
+    }
 
     /**
      * Evaluate rules for the authenticated user.
@@ -29,11 +45,8 @@ class RuleEngineController extends Controller
 
         $weekStart = $targetDate->clone()->startOfWeek(Carbon::MONDAY)->toDateString();
 
-        // Check if we should re-evaluate
         if (! $this->ruleEngineService->shouldReevaluate($userId, $targetDate)) {
-            $existingProgress = $this->userProgressRepository->getByWeek($userId, $weekStart);
             $existingFeedback = $this->feedbackHistoryRepository->getByUserAndDate($userId, $weekStart);
-
             // Reconstruct evaluation result from feedback history to maintain data structure
             $evaluationRules = $existingFeedback->map(function ($feedback) {
                 return [

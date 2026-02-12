@@ -1,5 +1,6 @@
 <?php
 
+use App\DTOs\TransactionUpdateDTO;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
@@ -108,7 +109,9 @@ test('can get summary', function () {
 
 test('can update transaction', function () {
     $transaction = Transaction::first();
-    $updated = $this->service->updateTransaction($transaction->id, $this->user->id, ['amount' => 200]);
+    $updated = $this->service->updateTransaction(
+        TransactionUpdateDTO::from($transaction->id, $this->user->id, ['amount' => 200])
+    );
 
     expect($updated)->toBeTrue()
         ->and($transaction->fresh()->amount)->toBe('200.00');

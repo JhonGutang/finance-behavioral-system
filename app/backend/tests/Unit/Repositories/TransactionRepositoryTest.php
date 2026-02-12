@@ -1,5 +1,7 @@
 <?php
 
+use App\DTOs\DateRangeQueryDTO;
+use App\DTOs\TransactionUpdateDTO;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
@@ -48,7 +50,9 @@ test('can get transaction by id', function () {
 });
 
 test('can get transactions by date range', function () {
-    $transactions = $this->repository->getByDateRange('2026-01-15', '2026-01-15', $this->user->id);
+    $transactions = $this->repository->getByDateRange(
+        DateRangeQueryDTO::from($this->user->id, '2026-01-15', '2026-01-15')
+    );
 
     expect($transactions)->toHaveCount(1)
         ->and($transactions->first()->date->format('Y-m-d'))->toBe('2026-01-15');
@@ -88,7 +92,9 @@ test('can create transaction', function () {
 
 test('can update transaction', function () {
     $transaction = Transaction::first();
-    $updated = $this->repository->update($transaction->id, $this->user->id, ['amount' => 6000]);
+    $updated = $this->repository->update(
+        TransactionUpdateDTO::from($transaction->id, $this->user->id, ['amount' => 6000])
+    );
 
     expect($updated)->toBeTrue()
         ->and($transaction->fresh()->amount)->toBe('6000.00');

@@ -1,5 +1,6 @@
 <?php
 
+use App\DTOs\CategoryUpdateDTO;
 use App\Models\Category;
 use App\Models\User;
 use App\Repositories\CategoryRepository;
@@ -78,7 +79,9 @@ test('validates color must be hex format', function () {
 
 test('can update category', function () {
     $category = Category::first();
-    $updated = $this->service->updateCategory($category->id, $this->user->id, ['name' => 'Updated']);
+    $updated = $this->service->updateCategory(
+        CategoryUpdateDTO::from($category->id, $this->user->id, ['name' => 'Updated'])
+    );
 
     expect($updated)->toBeTrue()
         ->and($category->fresh()->name)->toBe('Updated');

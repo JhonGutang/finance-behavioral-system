@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\DTOs\DateRangeQueryDTO;
 use App\Repositories\TransactionRepository;
+use App\Repositories\UserProgressRepository;
 use Carbon\Carbon;
 
 class RuleEngineService
@@ -15,10 +17,17 @@ class RuleEngineService
 
     private const SMALL_PURCHASE_COUNT_THRESHOLD = 10;
 
+    protected TransactionRepository $transactionRepository;
+
+    protected UserProgressRepository $userProgressRepository;
+
     public function __construct(
-        private TransactionRepository $transactionRepository,
-        private \App\Repositories\UserProgressRepository $userProgressRepository
-    ) {}
+        TransactionRepository $transactionRepository,
+        UserProgressRepository $userProgressRepository
+    ) {
+        $this->transactionRepository = $transactionRepository;
+        $this->userProgressRepository = $userProgressRepository;
+    }
 
     /**
      * Check if evaluation should be re-run based on data changes.
@@ -36,9 +45,7 @@ class RuleEngineService
         }
 
         $lastTransactionUpdate = $this->transactionRepository->getLastUpdateTimestamp(
-            $userId,
-            $weekStart,
-            $weekEnd
+            DateRangeQueryDTO::from($userId, $weekStart, $weekEnd)
         );
 
         if (! $lastTransactionUpdate) {
@@ -65,15 +72,19 @@ class RuleEngineService
 
         // Get summaries
         $currentSummary = $this->transactionRepository->getWeeklySummary(
-            $userId,
-            $currentWeekStart->toDateString(),
-            $currentWeekEnd->toDateString()
+            DateRangeQueryDTO::from(
+                $userId,
+                $currentWeekStart->toDateString(),
+                $currentWeekEnd->toDateString()
+            )
         );
 
         $previousSummary = $this->transactionRepository->getWeeklySummary(
-            $userId,
-            $previousWeekStart->toDateString(),
-            $previousWeekEnd->toDateString()
+            DateRangeQueryDTO::from(
+                $userId,
+                $previousWeekStart->toDateString(),
+                $previousWeekEnd->toDateString()
+            )
         );
 
         $results = [];

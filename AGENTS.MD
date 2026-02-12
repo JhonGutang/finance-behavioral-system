@@ -57,6 +57,7 @@ Planned features (**NOT** for current implementation):
 **Code Clarity:**
 
 - Descriptive, self-explanatory names
+- Avoid complex conditionals in a single statement. Break them down into intermediate variables.
 - Comments only for complex logic
 - Proper formatting, spacing, indentation
 
@@ -67,8 +68,13 @@ Planned features (**NOT** for current implementation):
 
 **Import Style (PHP):**
 
-- Avoid inline namespace imports (e.g., `private \App\Services\Service $service`)
-- ALWAYS use `use` statements at the top of the file for all classes and types
+- Avoid inline namespace usage (e.g., `$history = \App\Models\FeedbackHistory::where(...)`).
+- ALWAYS import classes at the top level using `use` statements.
+
+**Method Signatures (PHP):**
+
+- When a method requires more than 2 parameters, create a Data Transfer Object (DTO) to encapsulate them.
+- This ensures a cleaner and more readable structure.
 
 **Constants & Config:**
 

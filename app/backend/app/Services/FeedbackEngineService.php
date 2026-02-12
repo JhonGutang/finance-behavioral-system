@@ -2,17 +2,26 @@
 
 namespace App\Services;
 
+use App\DTOs\FeedbackTemplateInputDTO;
 use App\Repositories\FeedbackHistoryRepository;
 use App\Repositories\UserProgressRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class FeedbackEngineService
 {
+    protected FeedbackHistoryRepository $feedbackHistoryRepository;
+
+    protected UserProgressRepository $userProgressRepository;
+
     public function __construct(
-        private FeedbackHistoryRepository $feedbackHistoryRepository,
-        private UserProgressRepository $userProgressRepository
-    ) {}
+        FeedbackHistoryRepository $feedbackHistoryRepository,
+        UserProgressRepository $userProgressRepository
+    ) {
+        $this->feedbackHistoryRepository = $feedbackHistoryRepository;
+        $this->userProgressRepository = $userProgressRepository;
+    }
 
     /**
      * Process evaluation results from RuleEngine and generate feedback.
@@ -20,7 +29,6 @@ class FeedbackEngineService
     public function processRuleResults(array $evaluationResults): array
     {
         $userId = $evaluationResults['user_id'];
-        $evaluationDate = Carbon::parse($evaluationResults['evaluation_date']);
         $weekStart = Carbon::parse($evaluationResults['weeks']['current']['start']);
         $weekEnd = Carbon::parse($evaluationResults['weeks']['current']['end']);
 
@@ -44,7 +52,15 @@ class FeedbackEngineService
             $template = FeedbackTemplateLibrary::getTemplate($ruleId, $level);
 
             if ($template) {
-                $feedbackData = $this->fillTemplate($template, $ruleResult['data'], $userId, $ruleId, $level);
+                $input = FeedbackTemplateInputDTO::from(
+                    template: $template,
+                    data: $ruleResult['data'],
+                    userId: $userId,
+                    ruleId: $ruleId,
+                    level: $level
+                );
+
+                $feedbackData = $this->fillTemplate($input);
 
                 $feedback = $this->feedbackHistoryRepository->updateOrCreate(
                     [
@@ -168,8 +184,14 @@ class FeedbackEngineService
     /**
      * Fill template placeholders with actual data, calculating advanced metrics if needed.
      */
-    private function fillTemplate(array $template, array $data, int $userId, string $ruleId, string $level): array
+    private function fillTemplate(FeedbackTemplateInputDTO $input): array
     {
+        $template = $input->template;
+        $data = $input->data;
+        $userId = $input->userId;
+        $ruleId = $input->ruleId;
+        $level = $input->level;
+
         $explanation = $template['explanation'];
         $suggestion = $template['suggestion'];
 
@@ -193,15 +215,7 @@ class FeedbackEngineService
             }
 
             // Basic formatting
-            if (str_contains($placeholder, 'amount') || str_contains($placeholder, 'total') || str_contains($placeholder, 'average') || str_contains($placeholder, 'limit') || str_contains($placeholder, 'budget') || str_contains($placeholder, 'target')) {
-                if (is_numeric($value)) {
-                    $value = '₱'.number_format((float) $value, 2);
-                }
-            } elseif (str_contains($placeholder, 'percentage')) {
-                if (is_numeric($value)) {
-                    $value = number_format((float) $value, 2);
-                }
-            }
+            $value = $this->formatPlaceholderValue($placeholder, $value);
 
             $explanation = str_replace('${'.$placeholder.'}', (string) $value, $explanation);
             $suggestion = str_replace('${'.$placeholder.'}', (string) $value, $suggestion);
@@ -218,32 +232,76 @@ class FeedbackEngineService
      */
     private function enrichAdvancedData(array $data, string $ruleId, int $userId): array
     {
-        // Get last 4 weeks of feedback history for this rule
-        $history = \App\Models\FeedbackHistory::where('user_id', $userId)
-            ->where('rule_id', $ruleId)
-            ->orderBy('week_start', 'desc')
-            ->limit(4)
-            ->get();
+        $history = $this->getFeedbackHistory($userId, $ruleId);
 
-        if ($ruleId === 'category_overspend') {
-            $category = $data['category'] ?? null;
-            if ($category) {
-                $categoryHistory = $history->filter(fn ($f) => ($f->data['category'] ?? null) === $category);
-                $amounts = $categoryHistory->map(fn ($f) => $f->data['current_week_amount'] ?? 0)->push($data['current_week_amount'] ?? 0);
-                $data['four_week_average'] = $amounts->avg();
-            }
-        } elseif ($ruleId === 'weekly_spending_spike') {
-            $totals = $history->map(fn ($f) => $f->data['current_week_total'] ?? 0)->push($data['current_week_total'] ?? 0);
-            $data['four_week_average'] = $totals->avg();
-        } elseif ($ruleId === 'frequent_small_purchases') {
-            $amounts = $data['small_purchase_amounts'] ?? []; // Assuming this might be passed or calculated
-            if (! empty($amounts)) {
-                $data['average_amount'] = array_sum($amounts) / count($amounts);
-            } else {
-                $data['average_amount'] = ($data['total_amount'] ?? 0) / ($data['transaction_count'] ?? 1);
-            }
+        return match ($ruleId) {
+            'category_overspend' => $this->enrichCategoryOverspend($data, $history),
+            'weekly_spending_spike' => $this->enrichWeeklySpendingSpike($data, $history),
+            'frequent_small_purchases' => $this->enrichFrequentSmallPurchases($data),
+            default => $data,
+        };
+    }
+
+    private function getFeedbackHistory(int $userId, string $ruleId): Collection
+    {
+        return $this->feedbackHistoryRepository->getByUserAndRule($userId, $ruleId);
+    }
+
+    private function enrichCategoryOverspend(array $data, Collection $history): array
+    {
+        $category = $data['category'] ?? null;
+        if (! $category) {
+            return $data;
+        }
+
+        $categoryHistory = $history->filter(fn ($f) => ($f->data['category'] ?? null) === $category);
+        $amounts = $categoryHistory
+            ->map(fn ($f) => $f->data['current_week_amount'] ?? 0)
+            ->push($data['current_week_amount'] ?? 0);
+
+        $data['four_week_average'] = $amounts->avg();
+
+        return $data;
+    }
+
+    private function enrichWeeklySpendingSpike(array $data, Collection $history): array
+    {
+        $totals = $history
+            ->map(fn ($f) => $f->data['current_week_total'] ?? 0)
+            ->push($data['current_week_total'] ?? 0);
+
+        $data['four_week_average'] = $totals->avg();
+
+        return $data;
+    }
+
+    private function enrichFrequentSmallPurchases(array $data): array
+    {
+        $amounts = $data['small_purchase_amounts'] ?? [];
+
+        if (! empty($amounts)) {
+            $data['average_amount'] = array_sum($amounts) / count($amounts);
+        } else {
+            $data['average_amount'] = ($data['total_amount'] ?? 0) / ($data['transaction_count'] ?? 1);
         }
 
         return $data;
+    }
+
+    private function formatPlaceholderValue(string $placeholder, mixed $value): string
+    {
+        if (! is_numeric($value)) {
+            return (string) $value;
+        }
+
+        if (Str::contains($placeholder, ['amount', 'total', 'average', 'limit', 'budget', 'target'])) {
+            return '₱'.number_format((float) $value, 2);
+        }
+
+        if (Str::contains($placeholder, 'percentage')) {
+            return number_format((float) $value, 2);
+        }
+
+        return (string) $value;
     }
 }

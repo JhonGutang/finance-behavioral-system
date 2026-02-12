@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTOs\TransactionFilterDTO;
+use App\DTOs\TransactionUpdateDTO;
 use App\Http\Controllers\Controller;
 use App\Services\AnalyticsService;
 use App\Services\CsvImportService;
@@ -12,11 +14,21 @@ use Illuminate\Validation\ValidationException;
 
 class TransactionController extends Controller
 {
+    protected TransactionService $transactionService;
+
+    protected AnalyticsService $analyticsService;
+
+    protected CsvImportService $csvImportService;
+
     public function __construct(
-        private TransactionService $transactionService,
-        private AnalyticsService $analyticsService,
-        private CsvImportService $csvImportService
-    ) {}
+        TransactionService $transactionService,
+        AnalyticsService $analyticsService,
+        CsvImportService $csvImportService
+    ) {
+        $this->transactionService = $transactionService;
+        $this->analyticsService = $analyticsService;
+        $this->csvImportService = $csvImportService;
+    }
 
     /**
      * Display a listing of transactions.
@@ -35,7 +47,9 @@ class TransactionController extends Controller
         ];
 
         $perPage = $request->query('per_page', 10);
-        $transactions = $this->transactionService->getFilteredPaginated($userId, $filters, (int) $perPage);
+        $transactions = $this->transactionService->getFilteredPaginated(
+            TransactionFilterDTO::from($userId, $filters, (int) $perPage)
+        );
 
         return response()->json([
             'success' => true,
@@ -98,7 +112,9 @@ class TransactionController extends Controller
     {
         try {
             $userId = $request->user()->id;
-            $updated = $this->transactionService->updateTransaction($id, $userId, $request->all());
+            $updated = $this->transactionService->updateTransaction(
+                TransactionUpdateDTO::from($id, $userId, $request->all())
+            );
 
             if (! $updated) {
                 return response()->json([
