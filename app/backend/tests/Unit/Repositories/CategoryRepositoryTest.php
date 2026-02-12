@@ -1,5 +1,6 @@
 <?php
 
+use App\DTOs\CategoryUpdateDTO;
 use App\Models\Category;
 use App\Models\User;
 use App\Repositories\CategoryRepository;
@@ -61,7 +62,9 @@ test('can create category', function () {
 
 test('can update category', function () {
     $category = Category::first();
-    $updated = $this->repository->update($category->id, $this->user->id, ['name' => 'Updated Name']);
+    $updated = $this->repository->update(
+        CategoryUpdateDTO::from($category->id, $this->user->id, ['name' => 'Updated Name'])
+    );
 
     expect($updated)->toBeTrue()
         ->and($category->fresh()->name)->toBe('Updated Name');

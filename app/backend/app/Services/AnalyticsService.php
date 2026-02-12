@@ -2,26 +2,33 @@
 
 namespace App\Services;
 
-use App\Models\Transaction;
+use App\DTOs\DateRangeQueryDTO;
 use App\Repositories\TransactionRepository;
 use Carbon\Carbon;
 
 class AnalyticsService
 {
+    protected $transactionRepository;
+
     public function __construct(
-        private TransactionRepository $transactionRepository
-    ) {}
+        TransactionRepository $transactionRepository
+    ) {
+        $this->transactionRepository = $transactionRepository;
+    }
 
     public function getDailyFlow(int $days, int $userId): array
     {
         $endDate = Carbon::today();
         $startDate = Carbon::today()->subDays($days - 1);
 
-        // Get all transactions in the date range using Eloquent
-        $transactions = Transaction::where('user_id', $userId)
-            ->whereDate('date', '>=', $startDate->format('Y-m-d'))
-            ->whereDate('date', '<=', $endDate->format('Y-m-d'))
-            ->get();
+        // Get all transactions in the date range using repository
+        $transactions = $this->transactionRepository->getByDateRange(
+            DateRangeQueryDTO::from(
+                $userId,
+                $startDate->format('Y-m-d'),
+                $endDate->format('Y-m-d')
+            )
+        );
 
         // Initialize arrays for all dates in range
         $labels = [];
@@ -69,11 +76,14 @@ class AnalyticsService
         $endDate = Carbon::today()->endOfMonth();
         $startDate = Carbon::today()->subMonths($months - 1)->startOfMonth();
 
-        // Get all transactions in the date range using Eloquent
-        $transactions = Transaction::where('user_id', $userId)
-            ->whereDate('date', '>=', $startDate->format('Y-m-d'))
-            ->whereDate('date', '<=', $endDate->format('Y-m-d'))
-            ->get();
+        // Get all transactions in the date range using repository
+        $transactions = $this->transactionRepository->getByDateRange(
+            DateRangeQueryDTO::from(
+                $userId,
+                $startDate->format('Y-m-d'),
+                $endDate->format('Y-m-d')
+            )
+        );
 
         // Initialize arrays for all months in range
         $labels = [];
@@ -125,8 +135,8 @@ class AnalyticsService
      */
     public function getYearlyFlow(int $userId): array
     {
-        // Get all transactions using Eloquent
-        $transactions = Transaction::where('user_id', $userId)->get();
+        // Get all transactions using repository
+        $transactions = $this->transactionRepository->getAll($userId);
 
         if ($transactions->isEmpty()) {
             return [

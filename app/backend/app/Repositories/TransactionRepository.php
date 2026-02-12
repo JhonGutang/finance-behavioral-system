@@ -2,10 +2,13 @@
 
 namespace App\Repositories;
 
+use App\DTOs\DateRangeQueryDTO;
+use App\DTOs\TransactionFilterDTO;
+use App\DTOs\TransactionUpdateDTO;
 use App\Models\Transaction;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class TransactionRepository
@@ -21,18 +24,15 @@ class TransactionRepository
 
     /**
      * Get filtered and paginated transactions.
-     *
-     * @param int $userId
-     * @param array $filters
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
-    public function getFilteredPaginated(int $userId, array $filters, int $perPage = 10): LengthAwarePaginator
+    public function getFilteredPaginated(TransactionFilterDTO $dto): LengthAwarePaginator
     {
         $query = Transaction::with('category')
-            ->where('user_id', $userId)
+            ->where('user_id', $dto->userId)
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc');
+
+        $filters = $dto->filters;
 
         if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
@@ -58,7 +58,7 @@ class TransactionRepository
             $query->where('amount', '<=', $filters['max_amount']);
         }
 
-        return $query->paginate($perPage);
+        return $query->paginate($dto->perPage);
     }
 
     /**
@@ -75,12 +75,12 @@ class TransactionRepository
     /**
      * Get transactions by date range.
      */
-    public function getByDateRange(string $startDate, string $endDate, int $userId): Collection
+    public function getByDateRange(DateRangeQueryDTO $dto): Collection
     {
         return Transaction::with('category')
-            ->where('user_id', $userId)
-            ->whereDate('date', '>=', $startDate)
-            ->whereDate('date', '<=', $endDate)
+            ->where('user_id', $dto->userId)
+            ->whereDate('date', '>=', $dto->startDate)
+            ->whereDate('date', '<=', $dto->endDate)
             ->orderBy('date', 'desc')
             ->get();
     }
@@ -120,15 +120,15 @@ class TransactionRepository
     /**
      * Update a transaction.
      */
-    public function update(int $id, int $userId, array $data): bool
+    public function update(TransactionUpdateDTO $dto): bool
     {
-        $transaction = $this->getById($id, $userId);
+        $transaction = $this->getById($dto->id, $dto->userId);
 
         if (! $transaction) {
             return false;
         }
 
-        return $transaction->update($data);
+        return $transaction->update($dto->data);
     }
 
     /**
@@ -143,6 +143,19 @@ class TransactionRepository
         }
 
         return $transaction->delete();
+    }
+
+    /**
+     * Check if a transaction is a duplicate.
+     */
+    public function isDuplicate(array $data, int $userId): bool
+    {
+        return Transaction::where('user_id', $userId)
+            ->where('date', $data['date'])
+            ->where('amount', $data['amount'])
+            ->where('type', $data['type'])
+            ->where('description', $data['description'])
+            ->exists();
     }
 
     /**
@@ -178,13 +191,6 @@ class TransactionRepository
             ->whereDate('date', '<=', $endOfLastMonth)
             ->sum('amount');
 
-        $calculateTrend = function ($current, $previous) {
-            if ($previous == 0) {
-                return $current > 0 ? 100 : 0;
-            }
-            return (($current - $previous) / $previous) * 100;
-        };
-
         $netBalanceThisMonth = $incomeThisMonth - $expensesThisMonth;
         $netBalanceLastMonth = $incomeLastMonth - $expensesLastMonth;
 
@@ -196,10 +202,22 @@ class TransactionRepository
             'income_this_month' => (float) $incomeThisMonth,
             'expenses_this_month' => (float) $expensesThisMonth,
             'net_balance_this_month' => (float) $netBalanceThisMonth,
-            'income_trend' => (float) $calculateTrend($incomeThisMonth, $incomeLastMonth),
-            'expense_trend' => (float) $calculateTrend($expensesThisMonth, $expensesLastMonth),
-            'net_balance_trend' => (float) $calculateTrend($netBalanceThisMonth, $netBalanceLastMonth),
+            'income_trend' => (float) $this->calculateTrend($incomeThisMonth, $incomeLastMonth),
+            'expense_trend' => (float) $this->calculateTrend($expensesThisMonth, $expensesLastMonth),
+            'net_balance_trend' => (float) $this->calculateTrend($netBalanceThisMonth, $netBalanceLastMonth),
         ];
+    }
+
+    /**
+     * Calculate percentage trend between current and previous values.
+     */
+    private function calculateTrend(float $current, float $previous): float
+    {
+        if ($previous == 0) {
+            return $current > 0 ? 100 : 0;
+        }
+
+        return (($current - $previous) / $previous) * 100;
     }
 
     /**
@@ -219,11 +237,11 @@ class TransactionRepository
     /**
      * Get weekly aggregation data for rule evaluation.
      */
-    public function getWeeklySummary(int $userId, string $startDate, string $endDate): array
+    public function getWeeklySummary(DateRangeQueryDTO $dto): array
     {
-        $baseQuery = Transaction::where('transactions.user_id', $userId)
-            ->whereDate('transactions.date', '>=', $startDate)
-            ->whereDate('transactions.date', '<=', $endDate)
+        $baseQuery = Transaction::where('transactions.user_id', $dto->userId)
+            ->whereDate('transactions.date', '>=', $dto->startDate)
+            ->whereDate('transactions.date', '<=', $dto->endDate)
             ->where('transactions.type', 'expense');
 
         $totalExpenses = (clone $baseQuery)->sum('transactions.amount');
@@ -236,7 +254,7 @@ class TransactionRepository
             ->groupBy('categories.name')
             ->get()
             ->pluck('total', 'category_name')
-            ->map(fn($total) => (float) $total)
+            ->map(fn ($total) => (float) $total)
             ->toArray();
 
         // Also get total amount for small transactions as needed for Rule 3 metadata
@@ -254,11 +272,11 @@ class TransactionRepository
     /**
      * Get the latest update timestamp for transactions in a date range.
      */
-    public function getLastUpdateTimestamp(int $userId, string $startDate, string $endDate): ?string
+    public function getLastUpdateTimestamp(DateRangeQueryDTO $dto): ?string
     {
-        return Transaction::where('user_id', $userId)
-            ->whereDate('date', '>=', $startDate)
-            ->whereDate('date', '<=', $endDate)
+        return Transaction::where('user_id', $dto->userId)
+            ->whereDate('date', '>=', $dto->startDate)
+            ->whereDate('date', '<=', $dto->endDate)
             ->max('updated_at');
     }
 }

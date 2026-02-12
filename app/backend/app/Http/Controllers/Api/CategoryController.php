@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTOs\CategoryUpdateDTO;
 use App\Http\Controllers\Controller;
 use App\Services\CategoryService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class CategoryController extends Controller
 {
-    public function __construct(
-        private CategoryService $categoryService
-    ) {}
+    protected CategoryService $categoryService;
+
+    public function __construct(CategoryService $categoryService)
+    {
+        $this->categoryService = $categoryService;
+    }
 
     public function index(Request $request): JsonResponse
     {
@@ -75,7 +80,9 @@ class CategoryController extends Controller
     {
         try {
             $userId = $request->user()->id;
-            $updated = $this->categoryService->updateCategory($id, $userId, $request->all());
+            $updated = $this->categoryService->updateCategory(
+                CategoryUpdateDTO::from($id, $userId, $request->all())
+            );
 
             if (! $updated) {
                 return response()->json([
@@ -117,7 +124,7 @@ class CategoryController extends Controller
                 'success' => true,
                 'message' => 'Category deleted successfully',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),

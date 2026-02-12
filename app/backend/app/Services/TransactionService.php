@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\DTOs\DateRangeQueryDTO;
+use App\DTOs\TransactionFilterDTO;
+use App\DTOs\TransactionUpdateDTO;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Repositories\TransactionRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,9 +14,12 @@ use Illuminate\Validation\ValidationException;
 
 class TransactionService
 {
-    public function __construct(
-        private TransactionRepository $transactionRepository
-    ) {}
+    protected TransactionRepository $transactionRepository;
+
+    public function __construct(TransactionRepository $transactionRepository)
+    {
+        $this->transactionRepository = $transactionRepository;
+    }
 
     public function getAllTransactions(int $userId): Collection
     {
@@ -22,9 +29,9 @@ class TransactionService
     /**
      * Get filtered and paginated transactions.
      */
-    public function getFilteredPaginated(int $userId, array $filters, int $perPage = 10)
+    public function getFilteredPaginated(TransactionFilterDTO $dto)
     {
-        return $this->transactionRepository->getFilteredPaginated($userId, $filters, $perPage);
+        return $this->transactionRepository->getFilteredPaginated($dto);
     }
 
     /**
@@ -38,9 +45,9 @@ class TransactionService
     /**
      * Get transactions by date range.
      */
-    public function getTransactionsByDateRange(string $startDate, string $endDate, int $userId): Collection
+    public function getTransactionsByDateRange(DateRangeQueryDTO $dto): Collection
     {
-        return $this->transactionRepository->getByDateRange($startDate, $endDate, $userId);
+        return $this->transactionRepository->getByDateRange($dto);
     }
 
     /**
@@ -77,12 +84,13 @@ class TransactionService
      *
      * @throws ValidationException
      */
-    public function updateTransaction(int $id, int $userId, array $data): bool
+    public function updateTransaction(TransactionUpdateDTO $dto): bool
     {
-        $data['user_id'] = $userId;
+        $data = $dto->data;
+        $data['user_id'] = $dto->userId;
         $this->validateTransaction($data, true);
 
-        return $this->transactionRepository->update($id, $userId, $data);
+        return $this->transactionRepository->update($dto);
     }
 
     /**
@@ -126,7 +134,7 @@ class TransactionService
                 'exists:categories,id',
                 function ($attribute, $value, $fail) use ($data) {
                     $userId = $data['user_id'] ?? null;
-                    $category = \App\Models\Category::find($value);
+                    $category = Category::find($value);
                     if ($category && $category->user_id !== null && $category->user_id !== $userId) {
                         $fail('The selected category is invalid.');
                     }

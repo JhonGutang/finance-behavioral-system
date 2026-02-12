@@ -2,20 +2,26 @@
 
 namespace App\Services;
 
+use App\DTOs\FeedbackTemplateInputDTO;
 use App\Repositories\FeedbackHistoryRepository;
 use App\Repositories\UserProgressRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use App\Models\FeedbackHistory;
-use App\DTOs\FeedbackTemplateInputDTO;
 use Illuminate\Support\Str;
 
 class FeedbackEngineService
 {
+    protected FeedbackHistoryRepository $feedbackHistoryRepository;
+
+    protected UserProgressRepository $userProgressRepository;
+
     public function __construct(
-        private FeedbackHistoryRepository $feedbackHistoryRepository,
-        private UserProgressRepository $userProgressRepository
-    ) {}
+        FeedbackHistoryRepository $feedbackHistoryRepository,
+        UserProgressRepository $userProgressRepository
+    ) {
+        $this->feedbackHistoryRepository = $feedbackHistoryRepository;
+        $this->userProgressRepository = $userProgressRepository;
+    }
 
     /**
      * Process evaluation results from RuleEngine and generate feedback.
@@ -23,7 +29,6 @@ class FeedbackEngineService
     public function processRuleResults(array $evaluationResults): array
     {
         $userId = $evaluationResults['user_id'];
-        $evaluationDate = Carbon::parse($evaluationResults['evaluation_date']);
         $weekStart = Carbon::parse($evaluationResults['weeks']['current']['start']);
         $weekEnd = Carbon::parse($evaluationResults['weeks']['current']['end']);
 
@@ -239,11 +244,7 @@ class FeedbackEngineService
 
     private function getFeedbackHistory(int $userId, string $ruleId): Collection
     {
-        return FeedbackHistory::where('user_id', $userId)
-            ->where('rule_id', $ruleId)
-            ->orderBy('week_start', 'desc')
-            ->limit(4)
-            ->get();
+        return $this->feedbackHistoryRepository->getByUserAndRule($userId, $ruleId);
     }
 
     private function enrichCategoryOverspend(array $data, Collection $history): array
@@ -286,7 +287,6 @@ class FeedbackEngineService
 
         return $data;
     }
-
 
     private function formatPlaceholderValue(string $placeholder, mixed $value): string
     {

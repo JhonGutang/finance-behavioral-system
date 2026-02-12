@@ -2,17 +2,23 @@
 
 namespace App\Services;
 
+use App\DTOs\CategoryUpdateDTO;
 use App\Models\Category;
 use App\Repositories\CategoryRepository;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class CategoryService
 {
-    public function __construct(
-        private CategoryRepository $categoryRepository
-    ) {}
+    protected CategoryRepository $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
 
     /**
      * Get all categories.
@@ -56,12 +62,13 @@ class CategoryService
      *
      * @throws ValidationException
      */
-    public function updateCategory(int $id, int $userId, array $data): bool
+    public function updateCategory(CategoryUpdateDTO $dto): bool
     {
-        $data['user_id'] = $userId;
-        $this->validateCategory($data, $id);
+        $data = $dto->data;
+        $data['user_id'] = $dto->userId;
+        $this->validateCategory($data, $dto->id);
 
-        return $this->categoryRepository->update($id, $userId, $data);
+        return $this->categoryRepository->update($dto);
     }
 
     /**
@@ -73,7 +80,7 @@ class CategoryService
     {
         // Check if category has transactions
         if ($this->categoryRepository->hasTransactions($id, $userId)) {
-            throw new \Exception('Cannot delete category with existing transactions');
+            throw new Exception('Cannot delete category with existing transactions');
         }
 
         return $this->categoryRepository->delete($id, $userId);
@@ -95,7 +102,7 @@ class CategoryService
             'name' => array_merge($nameRule, [
                 'string',
                 'max:100',
-                \Illuminate\Validation\Rule::unique('categories', 'name')
+                Rule::unique('categories', 'name')
                     ->where(function ($query) use ($userId) {
                         return $query->where('user_id', $userId)
                             ->orWhereNull('user_id');

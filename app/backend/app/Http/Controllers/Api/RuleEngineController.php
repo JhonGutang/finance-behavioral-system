@@ -3,22 +3,35 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\FeedbackHistoryRepository;
+use App\Repositories\UserProgressRepository;
+use App\Services\FeedbackEngineService;
 use App\Services\RuleEngineService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Repositories\UserProgressRepository;
-use App\Repositories\FeedbackHistoryRepository;
-use App\Services\FeedbackEngineService;
 
 class RuleEngineController extends Controller
 {
+    protected RuleEngineService $ruleEngineService;
+
+    protected FeedbackEngineService $feedbackEngineService;
+
+    protected UserProgressRepository $userProgressRepository;
+
+    protected FeedbackHistoryRepository $feedbackHistoryRepository;
+
     public function __construct(
-        private RuleEngineService $ruleEngineService,
-        private FeedbackEngineService $feedbackEngineService,
-        private UserProgressRepository $userProgressRepository,
-        private FeedbackHistoryRepository $feedbackHistoryRepository
-    ) {}
+        RuleEngineService $ruleEngineService,
+        FeedbackEngineService $feedbackEngineService,
+        UserProgressRepository $userProgressRepository,
+        FeedbackHistoryRepository $feedbackHistoryRepository
+    ) {
+        $this->ruleEngineService = $ruleEngineService;
+        $this->feedbackEngineService = $feedbackEngineService;
+        $this->userProgressRepository = $userProgressRepository;
+        $this->feedbackHistoryRepository = $feedbackHistoryRepository;
+    }
 
     /**
      * Evaluate rules for the authenticated user.

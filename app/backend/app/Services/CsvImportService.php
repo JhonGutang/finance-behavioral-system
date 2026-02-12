@@ -2,19 +2,25 @@
 
 namespace App\Services;
 
-use App\Models\Category;
-use App\Models\Transaction;
 use App\Repositories\CategoryRepository;
 use App\Repositories\TransactionRepository;
+use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
 
 class CsvImportService
 {
+    protected TransactionRepository $transactionRepository;
+
+    protected CategoryRepository $categoryRepository;
+
     public function __construct(
-        private TransactionRepository $transactionRepository,
-        private CategoryRepository $categoryRepository
-    ) {}
+        TransactionRepository $transactionRepository,
+        CategoryRepository $categoryRepository
+    ) {
+        $this->transactionRepository = $transactionRepository;
+        $this->categoryRepository = $categoryRepository;
+    }
 
     /**
      * Parse CSV and return a preview of data with duplicate flags.
@@ -48,7 +54,7 @@ class CsvImportService
                     'is_duplicate' => $isDuplicate,
                     'status' => 'valid',
                 ];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $preview[] = [
                     'id' => $index,
                     'raw_data' => $row,
@@ -120,22 +126,16 @@ class CsvImportService
         $validator = Validator::make($row, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception(implode(', ', $validator->errors()->all()));
+            throw new Exception(implode(', ', $validator->errors()->all()));
         }
 
         return $validator->validated();
     }
 
-    private function findOrCreateCategory(string $name, string $type, int $userId): Category
+    private function findOrCreateCategory(string $name, string $type, int $userId)
     {
-        // Try to find existing category (case insensitive-ish depends on DB)
-        $category = Category::where('name', $name)
-            ->where('type', $type)
-            ->where(function ($query) use ($userId) {
-                $query->where('user_id', $userId)
-                    ->orWhereNull('user_id');
-            })
-            ->first();
+        // Try to find existing category
+        $category = $this->categoryRepository->findByNameTypeAndUser($name, $type, $userId);
 
         if (! $category) {
             // Create a new user-specific category
@@ -154,11 +154,6 @@ class CsvImportService
 
     private function checkIsDuplicate(array $data, int $userId): bool
     {
-        return Transaction::where('user_id', $userId)
-            ->where('date', $data['date'])
-            ->where('amount', $data['amount'])
-            ->where('type', $data['type'])
-            ->where('description', $data['description'])
-            ->exists();
+        return $this->transactionRepository->isDuplicate($data, $userId);
     }
 }

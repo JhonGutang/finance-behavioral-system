@@ -17,6 +17,18 @@ class FeedbackHistoryRepository
             ->get();
     }
 
+    /**
+     * Get feedback history for a user and specific rule.
+     */
+    public function getByUserAndRule(int $userId, string $ruleId, int $limit = 4): Collection
+    {
+        return FeedbackHistory::where('user_id', $userId)
+            ->where('rule_id', $ruleId)
+            ->orderBy('week_start', 'desc')
+            ->limit($limit)
+            ->get();
+    }
+
     public function getAll(int $userId): Collection
     {
         return FeedbackHistory::where('user_id', $userId)

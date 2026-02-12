@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\DTOs\CategoryUpdateDTO;
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -47,6 +48,20 @@ class CategoryRepository
     }
 
     /**
+     * Find a category by name, type, and user.
+     */
+    public function findByNameTypeAndUser(string $name, string $type, int $userId): ?Category
+    {
+        return Category::where('name', $name)
+            ->where('type', $type)
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhereNull('user_id');
+            })
+            ->first();
+    }
+
+    /**
      * Create a new category.
      */
     public function create(array $data): Category
@@ -57,15 +72,15 @@ class CategoryRepository
     /**
      * Update a category.
      */
-    public function update(int $id, int $userId, array $data): bool
+    public function update(CategoryUpdateDTO $dto): bool
     {
-        $category = $this->getById($id, $userId);
+        $category = $this->getById($dto->id, $dto->userId);
 
-        if (! $category || $category->user_id !== $userId) {
+        if (! $category || $category->user_id !== $dto->userId) {
             return false; // Cannot update default or others' categories
         }
 
-        return $category->update($data);
+        return $category->update($dto->data);
     }
 
     /**
