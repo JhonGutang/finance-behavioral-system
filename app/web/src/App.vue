@@ -105,9 +105,3 @@ a {
   @apply text-slate-600 hover:text-slate-900;
 }
 </style>
-
-<style scoped>
-a {
-  @apply text-slate-600 hover:text-slate-900;
-}
-</style>

@@ -144,14 +144,10 @@
               </div>
 
               <div v-if="feedbackStore.latestFeedback.length > 0" class="pt-2">
-                <button @click="feedbackStore.evaluateRules()" :disabled="feedbackStore.loading"
+                <button @click="handleRefreshAnalysis" :disabled="feedbackStore.loading"
                   class="w-full h-9 border border-dashed border-emerald-400/50 rounded-xl text-[9px] text-emerald-700 uppercase tracking-[0.2em] font-black hover:bg-emerald-50 transition-all disabled:opacity-50">
                   {{ feedbackStore.loading ? 'Evaluating...' : 'Refresh Analysis' }}
                 </button>
-                <div v-if="false"> <!-- Technical hook for notification on success -->
-                  {{ feedbackStore.isFeedbackFetched && !feedbackStore.loading ? (notifyWisdomRefreshed(), null) : null
-                  }}
-                </div>
               </div>
             </div>
           </CardContent>
@@ -367,6 +363,15 @@ function formatTransactionDate(dateString: string): string {
     return formatDateSafe(formattedInput) || dateString;
   }
   return formatDateSafe(dateString) || dateString;
+}
+
+async function handleRefreshAnalysis() {
+  try {
+    await feedbackStore.evaluateRules();
+    notifyWisdomRefreshed();
+  } catch (err) {
+    console.error('Failed to refresh analysis:', err);
+  }
 }
 
 onMounted(async () => {
